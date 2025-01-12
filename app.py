@@ -9,8 +9,8 @@ import numpy as np
 app = Flask(__name__)
 
 # Configure upload and processed directories
-UPLOAD_FOLDER = 'uploads'
-PROCESSED_FOLDER = 'processed'
+UPLOAD_FOLDER = '/tmp/uploads'
+PROCESSED_FOLDER = '/tmp/processed'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
