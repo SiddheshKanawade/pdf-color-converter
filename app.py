@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, send_from_directory, redirect
 import os
 from io import BytesIO
 from PIL import Image
+from flask import after_this_request
 import fitz  # PyMuPDF
 import numpy as np
 
@@ -86,6 +87,16 @@ def upload_file():
 
 @app.route('/download/<filename>')
 def download_file(filename):
+    filepath = os.path.join(app.config['PROCESSED_FOLDER'], filename)
+
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(filepath)
+        except Exception as e:
+            app.logger.error(f"Error removing file {filepath}: {e}")
+        return response
+
     return send_from_directory(app.config['PROCESSED_FOLDER'], filename, as_attachment=True)
 
 if __name__ == '__main__':

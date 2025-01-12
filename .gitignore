@@ -34,3 +34,4 @@ pip-delete-this-directory.txt
 # Output files
 *.pdf
 uploads/
+.vercel
