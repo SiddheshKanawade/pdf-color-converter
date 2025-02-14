@@ -5,6 +5,7 @@
     --accent-color: #0070f3;
     --background-color: #fafafa;
     --border-color: #eaeaea;
+    --hover-color: #0051b3;
 }
 
 body {
@@ -26,6 +27,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .nav-content {
@@ -35,6 +37,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 3rem;
 }
 
 .logo {
@@ -42,18 +45,36 @@ body {
     font-weight: 700;
     color: var(--primary-color);
     text-decoration: none;
+    transition: all 0.2s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background-color: var(--background-color);
+}
+
+.logo:hover {
+    color: white;
+    background-color: var(--accent-color);
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
 }
 
 .nav-links a {
-    margin-left: 2rem;
     color: var(--secondary-color);
     text-decoration: none;
     font-size: 1rem;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
 }
 
 .nav-links a:hover {
-    color: var(--primary-color);
+    color: white;
+    background-color: var(--accent-color);
 }
 
 /* Main content */
@@ -95,10 +116,11 @@ main {
     border-radius: 8px;
     text-decoration: none;
     font-weight: 500;
-    transition: transform 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .cta-button:hover {
+    background-color: var(--hover-color);
     transform: translateY(-2px);
 }
 
@@ -127,6 +149,12 @@ main {
     border-radius: 8px;
     text-align: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .feature-icon {
@@ -151,6 +179,11 @@ main {
 .step {
     text-align: center;
     padding: 2rem;
+    transition: all 0.2s ease;
+}
+
+.step:hover {
+    transform: translateY(-5px);
 }
 
 .step-number {
@@ -168,17 +201,82 @@ main {
 
 /* Convert section */
 .convert-section {
-    padding: 4rem 2rem;
-    max-width: 800px;
+    padding: 3rem 2rem;
+    max-width: 600px;
     margin: 0 auto;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 300px);
 }
 
 .converter-container {
     background: white;
-    padding: 2rem;
-    border-radius: 8px;
+    padding: 2.5rem;
+    border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.convert-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.convert-section .description {
+    font-size: 1.125rem;
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+    max-width: 500px;
+}
+
+/* Form updates */
+.converter-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 0;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+}
+
+.converter-container label {
+    font-size: 1.125rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    margin: 0;
+}
+
+.converter-container input[type="file"] {
+    width: 100%;
+    padding: 1rem;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    background-color: var(--background-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0;
+}
+
+.converter-container input[type="file"]:hover {
+    border-color: var(--accent-color);
+    background-color: rgba(0, 112, 243, 0.05);
+}
+
+.converter-container button {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
 }
 
 /* About section */
@@ -215,7 +313,7 @@ footer {
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+    gap: 3rem;
 }
 
 .footer-section {
@@ -224,24 +322,66 @@ footer {
 }
 
 .footer-section h3 {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.footer-section p {
+    color: var(--secondary-color);
+    line-height: 1.6;
     margin-bottom: 1rem;
 }
 
-.footer-section a {
-    color: var(--secondary-color);
-    text-decoration: none;
-    margin-bottom: 0.5rem;
+.footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.footer-section a:hover {
-    color: var(--primary-color);
+.footer-link {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    padding: 0.25rem 0;
+    width: fit-content;
+}
+
+.footer-link:hover {
+    color: var(--accent-color);
+    padding-left: 0.5rem;
+    background-color: transparent;
+}
+
+.contact-button {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-size: 0.875rem;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--accent-color);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    width: fit-content;
+    margin-top: 0.5rem;
+}
+
+.contact-button:hover {
+    background-color: var(--accent-color);
+    color: white;
 }
 
 .footer-bottom {
     text-align: center;
-    margin-top: 2rem;
+    margin-top: 3rem;
     padding-top: 2rem;
     border-top: 1px solid var(--border-color);
+}
+
+.footer-bottom p {
+    color: var(--secondary-color);
+    font-size: 0.875rem;
 }
 
 /* Responsive design */
@@ -255,16 +395,25 @@ footer {
     }
 
     .nav-content {
-        flex-direction: column;
-        text-align: center;
+        height: auto;
+        padding: 1rem 2rem;
     }
 
     .nav-links {
-        margin-top: 1rem;
+        gap: 0.5rem;
     }
 
-    .nav-links a {
-        margin: 0 1rem;
+    .footer-content {
+        gap: 2rem;
+    }
+
+    .footer-section {
+        text-align: center;
+        align-items: center;
+    }
+
+    .footer-links {
+        align-items: center;
     }
 }
 
@@ -303,18 +452,19 @@ input[type="file"] {
     padding: 12px;
     font-size: 0.875rem;
     width: 100%;
-    border: 1px solid #eaeaea;
+    border: 2px solid var(--border-color);
     border-radius: 6px;
-    background-color: #fafafa;
-    transition: border-color 0.2s ease;
+    background-color: var(--background-color);
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
 input[type="file"]:hover {
-    border-color: #000;
+    border-color: var(--accent-color);
 }
 
 button {
-    background-color: #000;
+    background-color: var(--accent-color);
     color: white;
     border: none;
     border-radius: 6px;
@@ -327,7 +477,7 @@ button {
 }
 
 button:hover {
-    background-color: #333;
+    background-color: var(--hover-color);
     transform: translateY(-1px);
 }
 
@@ -391,6 +541,12 @@ a:hover {
     background: var(--background-color);
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+}
+
+.about-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .about-card h3 {
@@ -398,23 +554,28 @@ a:hover {
     margin-bottom: 1rem;
     font-size: 1.5rem;
     font-weight: 600;
+    text-align: center;
 }
 
 .about-card p {
     color: var(--secondary-color);
-    line-height: 1.6;
+    line-height: 1.8;
     margin-bottom: 1rem;
+    text-align: justify;
+    hyphens: auto;
 }
 
 .about-card ul {
     color: var(--secondary-color);
     padding-left: 1.5rem;
     margin-top: 0.5rem;
+    text-align: left;
 }
 
 .about-card li {
     margin-bottom: 0.5rem;
-    line-height: 1.6;
+    line-height: 1.8;
+    text-align: justify;
 }
 
 /* Update responsive styles */
@@ -430,4 +591,23 @@ a:hover {
     .about-card {
         padding: 1.5rem;
     }
+}
+
+/* Download button updates */
+.download-button {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+    margin-top: 1.5rem;
+}
+
+.download-button:hover {
+    background-color: var(--hover-color);
+    transform: translateY(-2px);
 }
