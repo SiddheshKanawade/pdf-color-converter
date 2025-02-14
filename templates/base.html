@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PDF Color Inverter{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/" class="logo">PDFInverter</a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/convert">Convert PDF</a>
+                <a href="/#about">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>PDFInverter</h3>
+                <p>Making PDFs easier on your eyes, one document at a time.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="/">Home</a>
+                <a href="/convert">Convert PDF</a>
+                <a href="/about">About</a>
+            </div>
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>Questions? Reach out to us</p>
+                <a href="mailto:support@pdfinverter.com">support@pdfinverter.com</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 PDFInverter. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html> 

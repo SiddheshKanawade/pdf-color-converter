@@ -1,13 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download Processed PDF</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h1>Download Processed PDF</h1>
-    <a href="{{ url_for('download_file', filename=filename) }}">Download</a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Download PDF - PDFInverter{% endblock %}
+
+{% block content %}
+<section class="result-section">
+    <h1>Your PDF is Ready</h1>
+    <p class="description">Your PDF has been successfully processed. Click below to download your inverted PDF.</p>
+    <div class="download-container">
+        <a href="{{ url_for('download_file', filename=filename) }}" class="download-button">Download Inverted PDF</a>
+    </div>
+</section>
+{% endblock %}

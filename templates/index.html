@@ -1,17 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Color Inverter</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h1>Upload PDF to Invert Colors</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <label for="file">Select PDF:</label>
-        <input type="file" name="file" id="file" accept=".pdf" required>
-        <button type="submit">Upload and Process</button>
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1>Transform Your PDFs for Better Reading</h1>
+        <p class="hero-description">Convert dark PDFs to light, making them easier to read and more printer-friendly.</p>
+        <a href="/convert" class="cta-button">Start Converting</a>
+    </div>
+</section>
+
+<section class="features">
+    <h2>Why Choose PDFInverter?</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">👀</div>
+            <h3>Eye Comfort</h3>
+            <p>Reduce eye strain with light-themed documents optimized for reading</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🖨️</div>
+            <h3>Save Ink</h3>
+            <p>Dramatically reduce printer ink usage with inverted colors</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Fast Processing</h3>
+            <p>Convert your PDFs in seconds with our optimized algorithm</p>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <h2>How It Works</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <h3>Upload</h3>
+            <p>Upload your dark-themed PDF document</p>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <h3>Process</h3>
+            <p>Our system automatically inverts the colors</p>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <h3>Download</h3>
+            <p>Get your light-themed PDF instantly</p>
+        </div>
+    </div>
+</section>
+
+<section class="about" id="about">
+    <div class="about-content">
+        <h2>About PDFInverter</h2>
+        <div class="about-grid">
+            <div class="about-card">
+                <h3>Our Mission</h3>
+                <p>We believe in making digital reading comfortable and accessible for everyone. Our PDF color inverter tool was created to address the common problem of eye strain from reading dark-themed documents.</p>
+            </div>
+            
+            <div class="about-card">
+                <h3>Why It Matters</h3>
+                <p>Many technical documents, especially in programming and cybersecurity, come with dark themes. While these look great on screens, they can be:</p>
+                <ul>
+                    <li>Difficult to read in bright environments</li>
+                    <li>Challenging to print due to high ink consumption</li>
+                    <li>Straining on the eyes during extended reading sessions</li>
+                </ul>
+            </div>
+
+            <div class="about-card">
+                <h3>Our Technology</h3>
+                <p>PDFInverter uses advanced image processing algorithms to intelligently convert dark-themed PDFs to light versions while maintaining perfect readability and document structure.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

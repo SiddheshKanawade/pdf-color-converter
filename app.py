@@ -63,6 +63,10 @@ def invert_image_colors(pixmap):
 def index():
     return render_template('index.html')
 
+@app.route('/convert')
+def convert():
+    return render_template('convert.html')
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
