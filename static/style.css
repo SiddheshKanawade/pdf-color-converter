@@ -1,7 +1,7 @@
 /* Base styles */
 :root {
     --primary-color: #000;
-    --secondary-color: #666;
+    --secondary-color: #555;
     --accent-color: #0070f3;
     --background-color: #fafafa;
     --border-color: #eaeaea;
@@ -419,11 +419,24 @@ footer {
 
 h1 {
     color: #000;
-    margin-bottom: 32px;
+    margin-bottom: 1.5rem;
     font-size: 2.5rem;
     font-weight: 800;
     text-align: center;
     letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
 }
 
 form {
@@ -610,4 +623,54 @@ a:hover {
 .download-button:hover {
     background-color: var(--hover-color);
     transform: translateY(-2px);
+}
+
+/* SEO improvements for text contrast and readability */
+:root {
+    --primary-color: #000;
+    --secondary-color: #555;
+    /* Darkened for better contrast */
+    --accent-color: #0070f3;
+    --background-color: #fafafa;
+    --border-color: #eaeaea;
+    --hover-color: #0051b3;
+}
+
+/* Improve heading hierarchy */
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+/* Improve text readability */
+p {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* Ensure proper focus states for accessibility */
+a:focus,
+button:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Improve link accessibility */
+.footer-link:focus,
+.nav-links a:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
 }
