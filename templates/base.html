@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Convert dark PDFs to light versions. Make your PDFs easier to read and printer-friendly with our free online tool.">
+    <meta name="description" content="{% block description %}Free online tool to convert dark PDFs to light versions. Make your PDFs easier to read and save printer ink.{% endblock %}">
     <meta name="keywords" content="PDF converter, dark to light PDF, PDF color inverter, eye-friendly PDF, printer-friendly PDF">
     <meta name="author" content="PDFInverter">
     <meta property="og:title" content="{% block ogtitle %}PDFInverter - Convert Dark PDFs to Light{% endblock %}">
@@ -22,8 +22,7 @@
         "name": "PDFInverter",
         "url": "{{ request.url_root }}",
         "description": "Convert dark PDFs to light versions for better readability and printing",
-        "applicationCategory": "Utility",
-        "operatingSystem": "Any",
+        "applicationCategory": "WebApplication",
         "offers": {
             "@type": "Offer",
             "price": "0",
@@ -65,7 +64,7 @@
             <div class="footer-section">
                 <h3>Contact</h3>
                 <p>Questions? Reach out to us</p>
-                <a href="mailto:support@pdfinverter.com" class="contact-button">support@pdfinverter.com</a>
+                <a href="mailto:team@pdfinverter.com" class="contact-button">team@pdfinverter.com</a>
             </div>
         </div>
         <div class="footer-bottom">

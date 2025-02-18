@@ -96,16 +96,27 @@ main {
 }
 
 .hero h1 {
-    font-size: 3.5rem;
+    font-size: 2.75rem;
     font-weight: 800;
     letter-spacing: -0.02em;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+}
+
+.hero-subtitle {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
 }
 
 .hero-description {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: var(--secondary-color);
     margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .cta-button {
@@ -387,11 +398,15 @@ footer {
 /* Responsive design */
 @media (max-width: 768px) {
     .hero h1 {
-        font-size: 2.5rem;
+        font-size: 2.25rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
     }
 
     .hero-description {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
     }
 
     .nav-content {
@@ -415,6 +430,14 @@ footer {
     .footer-links {
         align-items: center;
     }
+}
+
+h1,
+h2,
+h3,
+p {
+    margin: 0;
+    padding: 0;
 }
 
 h1 {
@@ -671,6 +694,45 @@ button:focus {
 /* Improve link accessibility */
 .footer-link:focus,
 .nav-links a:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* Remove unused media queries */
+@media (max-width: 768px) {
+    .nav-content {
+        padding: 0 1rem;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Remove duplicate button styles */
+.cta-button,
+.download-button {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+/* Remove unused focus states */
+a:focus,
+button:focus {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }

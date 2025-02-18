@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request, send_from_directory, redirect, url_for
+from flask import Flask, render_template, request, send_from_directory, redirect, url_for, after_this_request
 import os
 from io import BytesIO
 from PIL import Image
-from flask import after_this_request
-import fitz  # PyMuPDF
+import fitz
 import numpy as np
 
 app = Flask(__name__)
@@ -16,37 +15,32 @@ os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 16MB max file size
 
-def invert_pdf_colors(input_pdf_path, output_pdf_path, jpeg_quality=75):
-    """
-    Inverts colors of a PDF to create a lighter version and reduces file size using JPEG compression.
-    :param input_pdf_path: Path to the input PDF with dark background.
-    :param output_pdf_path: Path where the output PDF will be saved.
-    :param jpeg_quality: Quality for JPEG compression (1 to 100, higher means better quality and larger file size).
-    """
-    document = fitz.open(input_pdf_path)
-    new_pdf = fitz.open()
-
-    for page_number in range(len(document)):
-        page = document[page_number]
-        pix = page.get_pixmap()
-
-        # Convert to inverted image
-        inverted_image = invert_image_colors(pix)
-
-        # Save the inverted image to a buffer in JPEG format
-        buffer = BytesIO()
-        inverted_image.save(buffer, format="JPEG", quality=jpeg_quality)
-        buffer.seek(0)
-
-        # Create a new page and insert the JPEG image
-        rect = page.rect
-        new_page = new_pdf.new_page(width=rect.width, height=rect.height)
-        new_page.insert_image(rect, stream=buffer.read())
-
-    new_pdf.save(output_pdf_path)
-    new_pdf.close()
-    document.close()
+def invert_pdf_colors(input_pdf_path, output_pdf_path):
+    try:
+        document = fitz.open(input_pdf_path)
+        new_pdf = fitz.open()
+        
+        for page in document:
+            pix = page.get_pixmap()
+            inverted_image = invert_image_colors(pix)
+            
+            buffer = BytesIO()
+            inverted_image.save(buffer, format="JPEG", quality=85)
+            buffer.seek(0)
+            
+            rect = page.rect
+            new_page = new_pdf.new_page(width=rect.width, height=rect.height)
+            new_page.insert_image(rect, stream=buffer.read())
+        
+        new_pdf.save(output_pdf_path)
+        new_pdf.close()
+        document.close()
+        return True
+    except Exception as e:
+        print(f"Error processing PDF: {e}")
+        return False
 
 def invert_image_colors(pixmap):
     """
