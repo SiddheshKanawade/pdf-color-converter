@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}PDF Management Tips & Guides | PDFInverter Blog{% endblock %}
+{% block ogtitle %}PDF Management Tips & Guides - PDFInverter Blog{% endblock %}
+{% block ogdescription %}Learn about PDF management, conversion tips, and best practices for handling digital documents. Expert guides and tutorials from PDFInverter.{% endblock %}
+{% block canonical %}blog{% endblock %}
+
+{% block content %}
+<section class="blog-index-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>PDF Management Tips & Guides</h1>
+            <p class="section-description">Discover expert tips, tutorials, and best practices for managing your PDF documents effectively.</p>
+        </div>
+        
+        <div class="blog-grid">
+            {% for post in posts %}
+            <a href="/blog/{{ post.slug }}" class="blog-card">
+                <article>
+                    <div class="blog-card-content">
+                        <div class="post-meta">
+                            <time datetime="{{ post.date }}">{{ post.date }}</time>
+                            <span class="reading-time">{{ post.reading_time }} min read</span>
+                        </div>
+                        <h2>{{ post.title }}</h2>
+                        <p class="description">{{ post.description }}</p>
+                        <div class="tags">
+                            {% for tag in post.tags %}
+                            <span class="tag">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </article>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %} 

@@ -4,6 +4,10 @@ from io import BytesIO
 from PIL import Image
 import fitz
 import numpy as np
+from datetime import datetime
+from flask import render_template_string
+import markdown
+import yaml
 
 app = Flask(__name__)
 
@@ -96,6 +100,27 @@ def download_file(filename):
         return response
 
     return send_from_directory(app.config['PROCESSED_FOLDER'], filename, as_attachment=True)
+
+@app.route('/blog')
+def blog_index():
+    with open('content/blog/posts.yaml', 'r') as file:
+        posts = yaml.safe_load(file)
+    return render_template('blog_index.html', posts=posts)
+
+@app.route('/blog/<slug>')
+def blog_post(slug):
+    with open(f'content/blog/{slug}.md', 'r') as file:
+        content = file.read()
+    
+    with open('content/blog/posts.yaml', 'r') as file:
+        posts = yaml.safe_load(file)
+        post = next((post for post in posts if post['slug'] == slug), None)
+    
+    if post is None:
+        return redirect(url_for('blog_index'))
+    
+    post['content'] = markdown.markdown(content)
+    return render_template('blog.html', post=post)
 
 if __name__ == '__main__':
     app.run(debug=True)

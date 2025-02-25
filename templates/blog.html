@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} | PDFInverter Blog{% endblock %}
+{% block ogtitle %}{{ post.title }} - PDFInverter Blog{% endblock %}
+{% block ogdescription %}{{ post.description }}{% endblock %}
+{% block canonical %}blog/{{ post.slug }}{% endblock %}
+
+{% block content %}
+<article class="blog-post">
+    <div class="blog-header">
+        <h1>{{ post.title }}</h1>
+        <div class="post-meta">
+            <time datetime="{{ post.date }}">{{ post.date }}</time>
+            <span class="reading-time">{{ post.reading_time }} min read</span>
+        </div>
+    </div>
+    <div class="blog-content">
+        {{ post.content | safe }}
+    </div>
+    <div class="blog-footer">
+        <div class="tags">
+            {% for tag in post.tags %}
+            <span class="tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        <div class="share-buttons">
+            <a href="https://twitter.com/share?url={{ request.url }}&text={{ post.title }}" target="_blank" rel="noopener">Share on Twitter</a>
+            <a href="https://www.linkedin.com/shareArticle?url={{ request.url }}&title={{ post.title }}" target="_blank" rel="noopener">Share on LinkedIn</a>
+        </div>
+    </div>
+</article>
+{% endblock %} 

@@ -15,4 +15,39 @@
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+    <url>
+        <loc>https://www.pdfinverter.com/blog</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://www.pdfinverter.com/blog/cost-of-printing-dark-pdfs</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <lastmod>2024-03-15</lastmod>
+    </url>
+    <url>
+        <loc>https://www.pdfinverter.com/blog/dark-pdfs-eye-strain</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <lastmod>2024-03-10</lastmod>
+    </url>
+    <url>
+        <loc>https://www.pdfinverter.com/blog/pdf-conversion-guide</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <lastmod>2024-03-05</lastmod>
+    </url>
+    <url>
+        <loc>https://www.pdfinverter.com/blog/pdf-management-guide</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <lastmod>2024-02-28</lastmod>
+    </url>
+    <url>
+        <loc>https://www.pdfinverter.com/blog/pdf-security-guide</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <lastmod>2024-02-20</lastmod>
+    </url>
 </urlset> 
