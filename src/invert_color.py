@@ -50,6 +50,8 @@ def remove_pages(input_pdf, output_pdf, pages_to_remove):
         pages_to_remove = range(int(start), int(end) + 1)
     else:
         pages_to_remove = [int(p) for p in pages_to_remove.split(',')]
+        
+    pages_to_remove = [p - 1 for p in pages_to_remove]  # Convert to 0-based indexing
     
     doc = pymupdf.open(input_pdf)
     
