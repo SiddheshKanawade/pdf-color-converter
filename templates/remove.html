@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Convert PDF - Make PDFs Eye-Friendly{% endblock %}
+{% block ogtitle %}Convert Dark PDFs to Light - Free Online Tool{% endblock %}
+{% block ogdescription %}Transform dark-themed PDFs into light, eye-friendly documents. Ideal for reading in bright environments and saving printer ink.{% endblock %}
+{% block canonical %}convert{% endblock %}
+
+{% block content %}
+<section class="convert-section">
+    <h1>Convert Your PDF</h1>
+    <p class="description">Remove specific pages from your PDF. Keep only what you need.</p>
+    <div class="converter-container">
+        <form action="/remove" method="post" enctype="multipart/form-data">
+            <label for="file">Select your PDF file</label>
+            <input type="file" name="file" id="file" accept=".pdf" required>
+            <div class="pages-remove">
+                <label for="pages">Pages to remove</label>
+                <input type="text" name="pages" id="pages" placeholder="e.g., 1,3,5-7">
+            </div>
+            
+            
+            <button type="submit">Remove Pages</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

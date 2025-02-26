@@ -9,7 +9,7 @@ from flask import render_template_string
 import markdown
 import yaml
 
-from src.invert_color import invert_pdf_colors
+from src.invert_color import invert_pdf_colors, remove_pages
 
 app = Flask(__name__)
 
@@ -30,6 +30,35 @@ def index():
 @app.route('/convert')
 def convert():
     return render_template('convert.html')
+
+@app.route('/edit-pages')
+def edit_pages():
+    return render_template('remove.html')
+
+@app.route('/remove', methods=['POST'])
+def remove():
+    if 'file' not in request.files:
+        return redirect(request.url)
+    
+    file = request.files['file']
+    pages = request.form.get('pages', '')
+
+    print(pages)
+    if file.filename == '':
+        return redirect(request.url)
+
+    if file and file.filename.endswith('.pdf'):
+        input_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        output_filename = f"processed_{file.filename}"
+        output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
+
+        file.save(input_path)
+
+        remove_pages(input_path, output_path, pages)
+
+        return redirect(url_for('download_file', filename=output_filename))
+    else:
+        return "Invalid file format. Please upload a PDF."
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
