@@ -1,16 +1,19 @@
 from io import BytesIO
 from PIL import Image
-import fitz
+import pymupdf
 import numpy as np
 
 
 def invert_pdf_colors(input_pdf_path, output_pdf_path):
     try:
-        document = fitz.open(input_pdf_path)
-        new_pdf = fitz.open()
+        document = pymupdf.open(input_pdf_path)
+        new_pdf = pymupdf.open()
+        
+        # Increase Image Resolution
+        mat = pymupdf.Matrix(2, 2) # zoom x, zoom y
         
         for page in document:
-            pix = page.get_pixmap()
+            pix = page.get_pixmap(matrix=mat)
             inverted_image = invert_image_colors(pix)
             
             buffer = BytesIO()
