@@ -979,6 +979,12 @@ button:focus {
     transition: background-color 0.2s ease;
 }
 
+.pages-remove {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .blog-index-section {
