@@ -1,459 +1,435 @@
-<!-- templates/index.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Redaction Tool</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .upload-area {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-        }
-        .pdf-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        #pdf-viewer {
-            position: relative;
-            overflow: hidden;
-        }
-        canvas {
-            border: 1px solid #ddd;
-        }
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .hidden {
-            display: none;
-        }
-        .page-navigation {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Redact PDF - Securely Remove Sensitive Information{% endblock %}
+{% block ogtitle %}Redact PDF - Securely Remove Sensitive Information{% endblock %}
+{% block ogdescription %}Easily redact sensitive information from your PDF documents. Draw over text or images to permanently remove them from your files.{% endblock %}
+{% block canonical %}redact-pdf{% endblock %}
+
+{% block content %}
+<section class="redact-section">
     <div class="container">
-        <h1>PDF Redaction Tool</h1>
-        <p>Upload a PDF, draw rectangles over areas to redact, then download the redacted PDF.</p>
-        
-        <div id="upload-section">
-            <div class="upload-area" id="drop-area">
-                <p>Drag and drop a PDF file here, or click to select</p>
-                <input type="file" id="file-input" accept=".pdf" class="hidden">
-            </div>
+        <div class="section-header">
+            <h1>Redact Your PDF</h1>
+            <p class="section-description">Draw rectangles over sensitive information to permanently remove it from your document.</p>
         </div>
         
-        <div id="redaction-section" class="hidden">
-            <div class="controls">
-                <button id="redaction-mode">Enable Redaction Mode</button>
-                <button id="clear-redactions">Clear All Redactions</button>
-                <button id="apply-redactions">Apply Redactions & Download</button>
+        <div class="redact-container">
+            <div id="upload-section">
+                <div class="file-upload-area">
+                    <div class="upload-prompt" id="drop-area">
+                        <div class="upload-icon">📄</div>
+                        <p>Drag and drop your PDF here, or click to select</p>
+                        <input type="file" id="file-input" accept=".pdf" class="hidden">
+                    </div>
+                </div>
             </div>
             
-            <div class="page-navigation">
-                <button id="prev-page">Previous Page</button>
-                <span id="page-info">Page 1 of 1</span>
-                <button id="next-page">Next Page</button>
-            </div>
-            
-            <div class="pdf-container">
-                <div id="pdf-viewer">
-                    <canvas id="pdf-canvas"></canvas>
-                    <canvas id="redaction-canvas"></canvas>
+            <div id="redaction-section" class="hidden">
+                <div class="controls-bar">
+                    <div class="control-group">
+                        <button id="redaction-mode" class="control-button">Enable Redaction</button>
+                        <button id="clear-redactions" class="control-button">Clear All</button>
+                    </div>
+                    <div class="page-navigation">
+                        <button id="prev-page" class="nav-button">Previous</button>
+                        <span id="page-info">Page 1 of 1</span>
+                        <button id="next-page" class="nav-button">Next</button>
+                    </div>
+                    <div class="action-group">
+                        <button id="apply-redactions" class="primary-button">Apply Redactions & Download</button>
+                    </div>
+                </div>
+                
+                <div class="pdf-viewer-container">
+                    <div id="pdf-viewer">
+                        <canvas id="pdf-canvas"></canvas>
+                        <div id="fabric-canvas-container" style="position: absolute; top: 0; left: 0;">
+                            <canvas id="redaction-canvas"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</section>
 
-    <script>
-        // Initialize PDF.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        
-        // DOM elements
-        const dropArea = document.getElementById('drop-area');
-        const fileInput = document.getElementById('file-input');
-        const uploadSection = document.getElementById('upload-section');
-        const redactionSection = document.getElementById('redaction-section');
-        const pdfCanvas = document.getElementById('pdf-canvas');
-        const redactionModeBtn = document.getElementById('redaction-mode');
-        const clearRedactionsBtn = document.getElementById('clear-redactions');
-        const applyRedactionsBtn = document.getElementById('apply-redactions');
-        const prevPageBtn = document.getElementById('prev-page');
-        const nextPageBtn = document.getElementById('next-page');
-        const pageInfo = document.getElementById('page-info');
-        
-        // Variables
-        let pdfDoc = null;
-        let currentPage = 1;
-        let totalPages = 0;
-        let currentFilename = '';
-        let pdfScale = 1.5;
-        let redactionMode = false;
-        let fabricCanvas = null;
-        let redactions = [];
-        
-        // Set up drag and drop events
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        // Handle file drop
-        dropArea.addEventListener('drop', handleDrop, false);
-        dropArea.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFileInput);
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-        
-        function handleFileInput(e) {
-            const files = e.target.files;
-            handleFiles(files);
-        }
-        
-        function handleFiles(files) {
-            if (files.length > 0) {
-                const file = files[0];
-                if (file.type !== 'application/pdf') {
-                    alert('Please upload a PDF file');
-                    return;
-                }
-                uploadPDF(file);
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script>
+    // Set PDF.js worker path
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    
+    // DOM elements
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const uploadSection = document.getElementById('upload-section');
+    const redactionSection = document.getElementById('redaction-section');
+    const pdfCanvas = document.getElementById('pdf-canvas');
+    const redactionCanvas = document.getElementById('redaction-canvas');
+    const redactionModeBtn = document.getElementById('redaction-mode');
+    const clearRedactionsBtn = document.getElementById('clear-redactions');
+    const applyRedactionsBtn = document.getElementById('apply-redactions');
+    const prevPageBtn = document.getElementById('prev-page');
+    const nextPageBtn = document.getElementById('next-page');
+    const pageInfo = document.getElementById('page-info');
+    
+    // Variables
+    let pdfDoc = null;
+    let currentPage = 1;
+    let totalPages = 0;
+    let currentFilename = '';
+    let pdfContext = pdfCanvas.getContext('2d');
+    let fabricCanvas = null;
+    let redactionMode = false;
+    let isDrawing = false;
+    let currentRect = null;
+    let redactions = [];
+    let pdfScale = 1.5;
+    
+    // Event listeners for file upload
+    dropArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileInput);
+    
+    dropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropArea.classList.add('dragover');
+    });
+    
+    dropArea.addEventListener('dragleave', () => {
+        dropArea.classList.remove('dragover');
+    });
+    
+    dropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+    
+    // Button event listeners
+    redactionModeBtn.addEventListener('click', toggleRedactionMode);
+    clearRedactionsBtn.addEventListener('click', clearAllRedactions);
+    applyRedactionsBtn.addEventListener('click', applyRedactionsToServer);
+    prevPageBtn.addEventListener('click', goToPrevPage);
+    nextPageBtn.addEventListener('click', goToNextPage);
+    
+    // Handle file input
+    function handleFileInput(e) {
+        const files = e.target.files;
+        handleFiles(files);
+    }
+    
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type !== 'application/pdf') {
+                alert('Please upload a PDF file');
+                return;
             }
+            uploadPDF(file);
         }
+    }
+    
+    // Upload PDF to server
+    async function uploadPDF(file) {
+        const formData = new FormData();
+        formData.append('file', file);
         
-        // Upload PDF to server
-        async function uploadPDF(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            try {
-                const response = await fetch('/upload-for-redaction', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentFilename = data.filename;
-                    loadPDF(file);
-                } else {
-                    alert(data.error || 'Upload failed');
-                }
-            } catch (error) {
-                console.error('Error uploading file:', error);
-                alert('Error uploading file');
-            }
-        }
-        
-        // Load PDF using PDF.js
-        async function loadPDF(file) {
-            const fileReader = new FileReader();
-            
-            fileReader.onload = async function() {
-                const typedArray = new Uint8Array(this.result);
-                
-                try {
-                    pdfDoc = await pdfjsLib.getDocument(typedArray).promise;
-                    totalPages = pdfDoc.numPages;
-                    
-                    // Show redaction UI
-                    uploadSection.classList.add('hidden');
-                    redactionSection.classList.remove('hidden');
-                    
-                    // Initialize fabric.js canvas
-                    initFabricCanvas();
-                    
-                    // Render first page
-                    renderPage(currentPage);
-                    updatePageInfo();
-                } catch (error) {
-                    console.error('Error loading PDF:', error);
-                    alert('Error loading PDF');
-                }
-            };
-            
-            fileReader.readAsArrayBuffer(file);
-        }
-        
-        // Initialize fabric.js canvas for redaction
-        function initFabricCanvas() {
-            if (fabricCanvas) {
-                fabricCanvas.dispose();
-            }
-            
-            const redactionCanvasElement = document.getElementById('redaction-canvas');
-            fabricCanvas = new fabric.Canvas('redaction-canvas', {
-                isDrawingMode: false,
-                selection: false
+        try {
+            const response = await fetch('/upload-for-redaction', {
+                method: 'POST',
+                body: formData
             });
             
-            // Position the fabric canvas over the PDF canvas
-            const pdfCanvasRect = pdfCanvas.getBoundingClientRect();
-            fabricCanvas.setWidth(pdfCanvas.width);
-            fabricCanvas.setHeight(pdfCanvas.height);
-            redactionCanvasElement.style.position = 'absolute';
-            redactionCanvasElement.style.top = '0';
-            redactionCanvasElement.style.left = '0';
+            const data = await response.json();
             
-            // Set up fabric.js for rectangle drawing
-            fabricCanvas.on('mouse:down', startDrawingRect);
-            fabricCanvas.on('mouse:move', updateDrawingRect);
-            fabricCanvas.on('mouse:up', endDrawingRect);
-            
-            // Load existing redactions for this page
-            loadPageRedactions();
-        }
-        
-        // Render PDF page
-        async function renderPage(pageNum) {
-            try {
-                const page = await pdfDoc.getPage(pageNum);
-                const viewport = page.getViewport({ scale: pdfScale });
-                
-                pdfCanvas.width = viewport.width;
-                pdfCanvas.height = viewport.height;
-                
-                const renderContext = {
-                    canvasContext: pdfCanvas.getContext('2d'),
-                    viewport: viewport
-                };
-                
-                await page.render(renderContext).promise;
-                
-                // Adjust fabric canvas size to match PDF
-                if (fabricCanvas) {
-                    fabricCanvas.setWidth(viewport.width);
-                    fabricCanvas.setHeight(viewport.height);
-                    loadPageRedactions();
-                }
-            } catch (error) {
-                console.error('Error rendering page:', error);
+            if (data.success) {
+                currentFilename = data.filename;
+                loadPDF(file);
+            } else {
+                alert(data.error || 'Upload failed');
             }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            alert('Error uploading file');
+        }
+    }
+    
+    // Load PDF using PDF.js
+    async function loadPDF(file) {
+        const fileReader = new FileReader();
+        
+        fileReader.onload = async function() {
+            const typedArray = new Uint8Array(this.result);
+            
+            try {
+                pdfDoc = await pdfjsLib.getDocument(typedArray).promise;
+                totalPages = pdfDoc.numPages;
+                
+                // Show redaction UI
+                uploadSection.classList.add('hidden');
+                redactionSection.classList.remove('hidden');
+                
+                // Initialize fabric.js canvas
+                initFabricCanvas();
+                
+                // Render first page
+                renderPage(currentPage);
+                updatePageInfo();
+            } catch (error) {
+                console.error('Error loading PDF:', error);
+                alert('Error loading PDF');
+            }
+        };
+        
+        fileReader.readAsArrayBuffer(file);
+    }
+    
+    // Initialize fabric.js canvas for redaction
+    function initFabricCanvas() {
+        // If canvas already exists, dispose it
+        if (fabricCanvas) {
+            fabricCanvas.dispose();
         }
         
-        // Update page navigation info
-        function updatePageInfo() {
-            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-            prevPageBtn.disabled = currentPage <= 1;
-            nextPageBtn.disabled = currentPage >= totalPages;
+        // Create new fabric canvas
+        fabricCanvas = new fabric.Canvas('redaction-canvas', {
+            selection: false,
+            renderOnAddRemove: true
+        });
+        
+        // Add event listeners for drawing
+        fabricCanvas.on('mouse:down', startDrawingRect);
+        fabricCanvas.on('mouse:move', updateDrawingRect);
+        fabricCanvas.on('mouse:up', endDrawingRect);
+        
+        // Enable redaction mode by default
+        redactionMode = true;
+        redactionModeBtn.textContent = 'Disable Redaction';
+        redactionModeBtn.classList.add('active');
+    }
+    
+    // Render PDF page
+    async function renderPage(pageNum) {
+        try {
+            const page = await pdfDoc.getPage(pageNum);
+            const viewport = page.getViewport({ scale: pdfScale });
+            
+            pdfCanvas.width = viewport.width;
+            pdfCanvas.height = viewport.height;
+            
+            const renderContext = {
+                canvasContext: pdfCanvas.getContext('2d'),
+                viewport: viewport
+            };
+            
+            await page.render(renderContext).promise;
+            
+            // Adjust fabric canvas size to match PDF
+            if (fabricCanvas) {
+                fabricCanvas.setWidth(viewport.width);
+                fabricCanvas.setHeight(viewport.height);
+                fabricCanvas.setZoom(1);
+                loadPageRedactions();
+            }
+        } catch (error) {
+            console.error('Error rendering page:', error);
+        }
+    }
+    
+    // Update page navigation info
+    function updatePageInfo() {
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        prevPageBtn.disabled = currentPage <= 1;
+        nextPageBtn.disabled = currentPage >= totalPages;
+    }
+    
+    // Redaction rectangle drawing
+    function startDrawingRect(o) {
+        if (!redactionMode) return;
+        
+        isDrawing = true;
+        const pointer = fabricCanvas.getPointer(o.e);
+        
+        currentRect = new fabric.Rect({
+            left: pointer.x,
+            top: pointer.y,
+            width: 0,
+            height: 0,
+            fill: 'rgba(0, 0, 0, 0.5)',
+            selectable: true,
+            hasControls: true,
+            hasBorders: true
+        });
+        
+        fabricCanvas.add(currentRect);
+        fabricCanvas.renderAll();
+    }
+    
+    function updateDrawingRect(o) {
+        if (!isDrawing || !redactionMode || !currentRect) return;
+        
+        const pointer = fabricCanvas.getPointer(o.e);
+        
+        if (pointer.x < currentRect.left) {
+            currentRect.set({ left: pointer.x });
         }
         
-        // Redaction rectangle drawing
-        let isDrawing = false;
-        let startPoint = { x: 0, y: 0 };
-        let currentRect = null;
+        if (pointer.y < currentRect.top) {
+            currentRect.set({ top: pointer.y });
+        }
         
-        function startDrawingRect(o) {
-            if (!redactionMode) return;
-            
-            isDrawing = true;
-            const pointer = fabricCanvas.getPointer(o.e);
-            startPoint.x = pointer.x;
-            startPoint.y = pointer.y;
-            
-            currentRect = new fabric.Rect({
-                left: pointer.x,
-                top: pointer.y,
-                width: 0,
-                height: 0,
+        currentRect.set({
+            width: Math.abs(pointer.x - currentRect.left),
+            height: Math.abs(pointer.y - currentRect.top)
+        });
+        
+        fabricCanvas.renderAll();
+    }
+    
+    function endDrawingRect() {
+        if (!isDrawing || !redactionMode) return;
+        
+        isDrawing = false;
+        
+        // Save the redaction rectangle
+        if (currentRect && currentRect.width > 5 && currentRect.height > 5) {
+            // Store redaction data
+            redactions.push({
+                page: currentPage - 1,  // 0-based page index for backend
+                x: currentRect.left,
+                y: currentRect.top,
+                width: currentRect.width,
+                height: currentRect.height
+            });
+        } else if (currentRect) {
+            // Remove too small rectangles
+            fabricCanvas.remove(currentRect);
+        }
+        
+        currentRect = null;
+        fabricCanvas.renderAll();
+    }
+    
+    // Load redactions for current page
+    function loadPageRedactions() {
+        fabricCanvas.clear();
+        
+        // Filter redactions for current page
+        const pageRedactions = redactions.filter(r => r.page === currentPage - 1);
+        
+        // Add rectangles to fabric canvas
+        pageRedactions.forEach(redaction => {
+            const rect = new fabric.Rect({
+                left: redaction.x,
+                top: redaction.y,
+                width: redaction.width,
+                height: redaction.height,
                 fill: 'rgba(0, 0, 0, 0.5)',
                 selectable: true,
                 hasControls: true,
                 hasBorders: true
             });
             
-            fabricCanvas.add(currentRect);
-            fabricCanvas.renderAll();
-        }
+            fabricCanvas.add(rect);
+        });
         
-        function updateDrawingRect(o) {
-            if (!isDrawing || !redactionMode) return;
+        fabricCanvas.renderAll();
+    }
+    
+    // Apply redactions and download PDF
+    async function applyRedactionsToServer() {
+        try {
+            // Update redactions from any modified rectangles on current page
+            updateRedactionsFromCanvas();
             
-            const pointer = fabricCanvas.getPointer(o.e);
-            
-            if (pointer.x < startPoint.x) {
-                currentRect.set({ left: pointer.x });
+            if (redactions.length === 0) {
+                alert('Please add at least one redaction area');
+                return;
             }
             
-            if (pointer.y < startPoint.y) {
-                currentRect.set({ top: pointer.y });
-            }
-            
-            currentRect.set({
-                width: Math.abs(pointer.x - startPoint.x),
-                height: Math.abs(pointer.y - startPoint.y)
+            const response = await fetch('/apply-redactions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    filename: currentFilename,
+                    redactions: redactions
+                })
             });
             
-            fabricCanvas.renderAll();
+            const data = await response.json();
+            
+            if (data.success) {
+                // Download the redacted PDF
+                window.location.href = `/download/${data.redacted_filename}`;
+            } else {
+                alert(data.error || 'Redaction failed');
+            }
+        } catch (error) {
+            console.error('Error applying redactions:', error);
+            alert('Error applying redactions');
         }
+    }
+    
+    // Update redactions data from canvas (for modified rectangles)
+    function updateRedactionsFromCanvas() {
+        // Remove current page redactions
+        redactions = redactions.filter(r => r.page !== currentPage - 1);
         
-        function endDrawingRect() {
-            if (!isDrawing || !redactionMode) return;
-            
-            isDrawing = false;
-            
-            // Save the redaction rectangle
-            if (currentRect && currentRect.width > 5 && currentRect.height > 5) {
-                // Store redaction data
+        // Add updated redactions from canvas
+        fabricCanvas.getObjects().forEach(obj => {
+            if (obj.type === 'rect') {
                 redactions.push({
-                    page: currentPage - 1,  // 0-based page index for backend
-                    x: currentRect.left,
-                    y: currentRect.top,
-                    width: currentRect.width,
-                    height: currentRect.height
+                    page: currentPage - 1,
+                    x: obj.left,
+                    y: obj.top,
+                    width: obj.width,
+                    height: obj.height
                 });
-            } else if (currentRect) {
-                // Remove too small rectangles
-                fabricCanvas.remove(currentRect);
-            }
-            
-            currentRect = null;
-        }
-        
-        // Load redactions for current page
-        function loadPageRedactions() {
-            fabricCanvas.clear();
-            
-            // Filter redactions for current page
-            const pageRedactions = redactions.filter(r => r.page === currentPage - 1);
-            
-            // Add rectangles to fabric canvas
-            pageRedactions.forEach(redaction => {
-                const rect = new fabric.Rect({
-                    left: redaction.x,
-                    top: redaction.y,
-                    width: redaction.width,
-                    height: redaction.height,
-                    fill: 'rgba(0, 0, 0, 0.5)',
-                    selectable: true,
-                    hasControls: true,
-                    hasBorders: true
-                });
-                
-                fabricCanvas.add(rect);
-            });
-            
-            fabricCanvas.renderAll();
-        }
-        
-        // Apply redactions and download PDF
-        async function applyRedactionsToServer() {
-            try {
-                // Update redactions from any modified rectangles on current page
-                updateRedactionsFromCanvas();
-                
-                const response = await fetch('/apply-redactions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        filename: currentFilename,
-                        redactions: redactions
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Download the redacted PDF
-                    window.location.href = `/download/${data.redacted_filename}`;
-                } else {
-                    alert(data.error || 'Redaction failed');
-                }
-            } catch (error) {
-                console.error('Error applying redactions:', error);
-                alert('Error applying redactions');
-            }
-        }
-        
-        // Update redactions data from canvas (for modified rectangles)
-        function updateRedactionsFromCanvas() {
-            // Remove current page redactions
-            redactions = redactions.filter(r => r.page !== currentPage - 1);
-            
-            // Add updated redactions from canvas
-            fabricCanvas.getObjects().forEach(obj => {
-                if (obj.type === 'rect') {
-                    redactions.push({
-                        page: currentPage - 1,
-                        x: obj.left,
-                        y: obj.top,
-                        width: obj.width,
-                        height: obj.height
-                    });
-                }
-            });
-        }
-        
-        // Event listeners
-        prevPageBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
-                updateRedactionsFromCanvas();
-                currentPage--;
-                renderPage(currentPage);
-                updatePageInfo();
             }
         });
+    }
+    
+    // Toggle redaction mode
+    function toggleRedactionMode() {
+        redactionMode = !redactionMode;
         
-        nextPageBtn.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                updateRedactionsFromCanvas();
-                currentPage++;
-                renderPage(currentPage);
-                updatePageInfo();
-            }
-        });
-        
-        redactionModeBtn.addEventListener('click', () => {
-            redactionMode = !redactionMode;
-            redactionModeBtn.textContent = redactionMode ? 'Disable Redaction Mode' : 'Enable Redaction Mode';
-        });
-        
-        clearRedactionsBtn.addEventListener('click', () => {
-            fabricCanvas.clear();
-            redactions = redactions.filter(r => r.page !== currentPage - 1);
-        });
-        
-        applyRedactionsBtn.addEventListener('click', applyRedactionsToServer);
-    </script>
-</body>
-</html>
+        if (redactionMode) {
+            redactionModeBtn.textContent = 'Disable Redaction';
+            redactionModeBtn.classList.add('active');
+            fabricCanvas.selection = false;
+        } else {
+            redactionModeBtn.textContent = 'Enable Redaction';
+            redactionModeBtn.classList.remove('active');
+            fabricCanvas.selection = true;
+        }
+    }
+    
+    // Clear all redactions
+    function clearAllRedactions() {
+        fabricCanvas.clear();
+        redactions = redactions.filter(r => r.page !== currentPage - 1);
+    }
+    
+    // Page navigation
+    function goToPrevPage() {
+        if (currentPage > 1) {
+            updateRedactionsFromCanvas();
+            currentPage--;
+            renderPage(currentPage);
+            updatePageInfo();
+        }
+    }
+    
+    function goToNextPage() {
+        if (currentPage < totalPages) {
+            updateRedactionsFromCanvas();
+            currentPage++;
+            renderPage(currentPage);
+            updatePageInfo();
+        }
+    }
+</script>
+{% endblock %}
