@@ -1078,18 +1078,21 @@ button:focus {
     padding: 0.5rem 1rem;
     border-radius: 4px;
     border: 1px solid var(--border-color);
-    background-color: white;
+    background-color: var(--accent-color);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.control-button:hover,
 .nav-button:hover {
     background-color: var(--background-color);
 }
 
+.control-button:hover {
+    background-color: var(--hover-color);
+}
+
 .control-button.active {
-    background-color: var(--accent-color);
+    background-color: black;
     color: white;
     border-color: var(--accent-color);
 }
