@@ -3,9 +3,11 @@ import os
 from io import BytesIO
 from PIL import Image
 import fitz
+import json
 import numpy as np
 from datetime import datetime
 from flask import render_template_string
+from flask import Flask, request, send_file, jsonify
 import markdown
 import yaml
 
@@ -43,7 +45,6 @@ def remove():
     file = request.files['file']
     pages = request.form.get('pages', '')
 
-    print(pages)
     if file.filename == '':
         return redirect(request.url)
 
@@ -116,6 +117,58 @@ def blog_post(slug):
     
     post['content'] = markdown.markdown(content)
     return render_template('blog.html', post=post)
+
+@app.route('/redact-pdf')
+def redact_pdf_page():
+    return render_template('redact.html')
+
+@app.route('/upload-for-redaction', methods=['POST'])
+def upload_for_redaction():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if file:
+        filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(filename)
+        return jsonify({'success': True, 'filename': file.filename})
+
+@app.route('/apply-redactions', methods=['POST'])
+def apply_redactions():
+    data = request.json
+    filename = data.get('filename')
+    redactions = data.get('redactions', [])
+    
+    if not filename or not redactions:
+        return jsonify({'error': 'Missing filename or redactions'}), 400
+    
+    input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    output_filename = f"redacted_{filename}"
+    output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
+    
+    try:
+        doc = fitz.open(input_path)
+        
+        # Apply redactions to each page
+        for redaction in redactions:
+            page_num = redaction['page']
+            x0, y0 = redaction['x'], redaction['y']
+            x1, y1 = x0 + redaction['width'], y0 + redaction['height']
+            
+            if 0 <= page_num < doc.page_count:
+                page = doc[page_num]
+                page.add_redact_annot((x0, y0, x1, y1), fill=(0, 0, 0))
+                page.apply_redactions()
+        
+        doc.save(output_path)
+        doc.close()
+        
+        return jsonify({'success': True, 'redacted_filename': output_filename})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
