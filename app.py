@@ -37,45 +37,6 @@ def convert():
 def edit_pages():
     return render_template('remove.html')
 
-@app.route("/upload_pdf", methods=["POST"])
-def upload_pdf():
-    if "file" not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
-
-    file = request.files["file"]
-    if file.filename == "":
-        return jsonify({"error": "No file selected"}), 400
-
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-    file.save(file_path)
-
-    return jsonify({"file_url": file_path})
-
-@app.route("/redact", methods=["POST"])
-def redact_pdf():
-    if "file" not in request.files or "rects" not in request.form:
-        return jsonify({"error": "Missing file or redaction data"}), 400
-
-    file = request.files["file"]
-    rects = json.loads(request.form["rects"])
-    
-    input_path = os.path.join(UPLOAD_FOLDER, file.filename)
-    output_path = os.path.join(PROCESSED_FOLDER, f"redacted_{file.filename}")
-    
-    file.save(input_path)
-
-    doc = fitz.open(input_path)
-    page = doc[0]  # Assuming redaction is on the first page
-
-    for rect in rects:
-        x0, y0 = rect["x"], rect["y"]
-        x1, y1 = x0 + rect["width"], y0 + rect["height"]
-        page.add_redact_annot((x0, y0, x1, y1), fill=(0, 0, 0))  # Black redaction
-        page.apply_redactions()
-
-    doc.save(output_path)
-    return send_file(output_path, as_attachment=True)
-
 @app.route('/remove', methods=['POST'])
 def remove():
     if 'file' not in request.files:
