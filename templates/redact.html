@@ -72,6 +72,7 @@
     const prevPageBtn = document.getElementById('prev-page');
     const nextPageBtn = document.getElementById('next-page');
     const pageInfo = document.getElementById('page-info');
+    const pdfViewer = document.getElementById('pdf-viewer');
     
     // Variables
     let pdfDoc = null;
@@ -85,6 +86,7 @@
     let currentRect = null;
     let redactions = [];
     let pdfScale = 1.5;
+    let pdfViewport = null;
     
     // Event listeners for file upload
     dropArea.addEventListener('click', () => fileInput.click());
@@ -170,9 +172,6 @@
                 uploadSection.classList.add('hidden');
                 redactionSection.classList.remove('hidden');
                 
-                // Initialize fabric.js canvas
-                initFabricCanvas();
-                
                 // Render first page
                 renderPage(currentPage);
                 updatePageInfo();
@@ -186,16 +185,22 @@
     }
     
     // Initialize fabric.js canvas for redaction
-    function initFabricCanvas() {
+    function initFabricCanvas(width, height) {
         // If canvas already exists, dispose it
         if (fabricCanvas) {
             fabricCanvas.dispose();
         }
         
+        // Set canvas dimensions
+        redactionCanvas.width = width;
+        redactionCanvas.height = height;
+        
         // Create new fabric canvas
         fabricCanvas = new fabric.Canvas('redaction-canvas', {
             selection: false,
-            renderOnAddRemove: true
+            renderOnAddRemove: true,
+            width: width,
+            height: height
         });
         
         // Add event listeners for drawing
@@ -203,35 +208,46 @@
         fabricCanvas.on('mouse:move', updateDrawingRect);
         fabricCanvas.on('mouse:up', endDrawingRect);
         
-        // Enable redaction mode by default
-        redactionMode = true;
-        redactionModeBtn.textContent = 'Disable Redaction';
-        redactionModeBtn.classList.add('active');
+        // Set initial redaction mode
+        toggleRedactionMode();
     }
     
     // Render PDF page
     async function renderPage(pageNum) {
         try {
             const page = await pdfDoc.getPage(pageNum);
-            const viewport = page.getViewport({ scale: pdfScale });
             
-            pdfCanvas.width = viewport.width;
-            pdfCanvas.height = viewport.height;
+            // Calculate scale to fit the container width
+            const containerWidth = document.querySelector('.pdf-viewer-container').clientWidth - 40; // Subtract padding
+            const originalViewport = page.getViewport({ scale: 1 });
+            const scale = Math.min(containerWidth / originalViewport.width, pdfScale);
             
+            // Create viewport with calculated scale
+            pdfViewport = page.getViewport({ scale: scale });
+            
+            // Set canvas dimensions
+            pdfCanvas.width = pdfViewport.width;
+            pdfCanvas.height = pdfViewport.height;
+            
+            // Center the PDF viewer
+            pdfViewer.style.width = `${pdfViewport.width}px`;
+            pdfViewer.style.height = `${pdfViewport.height}px`;
+            pdfViewer.style.margin = '0 auto';
+            
+            // Initialize fabric canvas with same dimensions
+            initFabricCanvas(pdfViewport.width, pdfViewport.height);
+            
+            // Render PDF page
             const renderContext = {
-                canvasContext: pdfCanvas.getContext('2d'),
-                viewport: viewport
+                canvasContext: pdfContext,
+                viewport: pdfViewport
             };
             
             await page.render(renderContext).promise;
             
-            // Adjust fabric canvas size to match PDF
-            if (fabricCanvas) {
-                fabricCanvas.setWidth(viewport.width);
-                fabricCanvas.setHeight(viewport.height);
-                fabricCanvas.setZoom(1);
-                loadPageRedactions();
-            }
+            // Load any existing redactions for this page
+            loadPageRedactions();
+            
         } catch (error) {
             console.error('Error rendering page:', error);
         }
@@ -294,13 +310,13 @@
         
         // Save the redaction rectangle
         if (currentRect && currentRect.width > 5 && currentRect.height > 5) {
-            // Store redaction data
+            // Store redaction data with scale factor applied
             redactions.push({
                 page: currentPage - 1,  // 0-based page index for backend
-                x: currentRect.left,
-                y: currentRect.top,
-                width: currentRect.width,
-                height: currentRect.height
+                x: currentRect.left / pdfViewport.scale,
+                y: currentRect.top / pdfViewport.scale,
+                width: currentRect.width / pdfViewport.scale,
+                height: currentRect.height / pdfViewport.scale
             });
         } else if (currentRect) {
             // Remove too small rectangles
@@ -321,10 +337,10 @@
         // Add rectangles to fabric canvas
         pageRedactions.forEach(redaction => {
             const rect = new fabric.Rect({
-                left: redaction.x,
-                top: redaction.y,
-                width: redaction.width,
-                height: redaction.height,
+                left: redaction.x * pdfViewport.scale,
+                top: redaction.y * pdfViewport.scale,
+                width: redaction.width * pdfViewport.scale,
+                height: redaction.height * pdfViewport.scale,
                 fill: 'rgba(0, 0, 0, 0.5)',
                 selectable: true,
                 hasControls: true,
@@ -383,10 +399,10 @@
             if (obj.type === 'rect') {
                 redactions.push({
                     page: currentPage - 1,
-                    x: obj.left,
-                    y: obj.top,
-                    width: obj.width,
-                    height: obj.height
+                    x: obj.left / pdfViewport.scale,
+                    y: obj.top / pdfViewport.scale,
+                    width: obj.width / pdfViewport.scale,
+                    height: obj.height / pdfViewport.scale
                 });
             }
         });
