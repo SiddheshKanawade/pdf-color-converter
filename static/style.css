@@ -1003,3 +1003,144 @@ button:focus {
         padding: 1.25rem;
     }
 }
+
+/* Redaction page styles */
+.redact-section {
+    padding: 4rem 0;
+    background-color: var(--background-color);
+}
+
+.redact-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.file-upload-area {
+    padding: 3rem;
+}
+
+.upload-prompt {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.upload-prompt:hover {
+    border-color: var(--accent-color);
+    background-color: rgba(var(--accent-color-rgb), 0.05);
+}
+
+.upload-prompt.dragover {
+    border-color: var(--accent-color);
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.controls-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--background-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.control-group,
+.action-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.page-navigation {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.control-button,
+.nav-button,
+.primary-button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.control-button:hover,
+.nav-button:hover {
+    background-color: var(--background-color);
+}
+
+.control-button.active {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.primary-button {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.primary-button:hover {
+    background-color: var(--hover-color);
+}
+
+.pdf-viewer-container {
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    background-color: var(--background-color);
+    min-height: 500px;
+    overflow: auto;
+}
+
+#pdf-viewer {
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#pdf-canvas,
+#redaction-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .controls-bar {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .control-group,
+    .action-group,
+    .page-navigation {
+        width: 100%;
+        justify-content: center;
+    }
+}

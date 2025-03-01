@@ -3,4 +3,6 @@ Allow: /
 Sitemap: https://www.pdfinverter.com/sitemap.xml
 
 Disallow: /upload
-Disallow: /download 
+Disallow: /download
+Disallow: /upload-for-redaction
+Disallow: /apply-redactions 
