@@ -170,5 +170,56 @@ def apply_redactions():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/merge-pdf')
+def merge_pdf_page():
+    return render_template('merge.html')
+
+@app.route('/merge-pdfs', methods=['POST'])
+def merge_pdfs():
+    if 'files[]' not in request.files:
+        return jsonify({'error': 'No files uploaded'}), 400
+    
+    files = request.files.getlist('files[]')
+    if not files or files[0].filename == '':
+        return jsonify({'error': 'No files selected'}), 400
+    
+    # Check if all files are PDFs
+    for file in files:
+        if not file.filename.lower().endswith('.pdf'):
+            return jsonify({'error': 'All files must be PDFs'}), 400
+    
+    try:
+        # Create a new PDF document
+        merged_doc = fitz.open()
+        
+        # Save each file temporarily and add to the merged document
+        temp_files = []
+        for file in files:
+            temp_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            file.save(temp_path)
+            temp_files.append(temp_path)
+            
+            # Open the PDF and append all pages to the merged document
+            pdf_doc = fitz.open(temp_path)
+            merged_doc.insert_pdf(pdf_doc)
+            pdf_doc.close()
+        
+        # Save the merged document
+        output_filename = f"merged_pdf_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+        output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
+        merged_doc.save(output_path)
+        merged_doc.close()
+        
+        # Clean up temporary files
+        for temp_file in temp_files:
+            try:
+                os.remove(temp_file)
+            except:
+                pass
+        
+        return jsonify({'success': True, 'merged_filename': output_filename})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)
