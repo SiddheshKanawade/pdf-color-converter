@@ -1272,3 +1272,129 @@ button:disabled {
         width: 100%;
     }
 }
+
+/* PDF Color Customization styles */
+.customize-section {
+    padding: 4rem 0;
+    background-color: var(--background-color);
+}
+
+.customize-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    padding-bottom: 2rem;
+}
+
+.color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.color-option {
+    flex: 1;
+    min-width: 250px;
+}
+
+.color-option label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.color-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.color-picker-container input[type="color"] {
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.color-picker-container input[type="text"] {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: monospace;
+}
+
+.color-preview {
+    padding: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.preview-box {
+    margin-top: 1rem;
+    padding: 2rem;
+    border-radius: 8px;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.preset-colors {
+    padding: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.preset-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.preset-button {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: #000;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.preset-button:hover {
+    background-color: var(--background-color);
+}
+
+.action-buttons {
+    padding: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .color-options {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .preset-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons button {
+        width: 100%;
+    }
+}

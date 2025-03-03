@@ -10,6 +10,7 @@ from flask import render_template_string
 from flask import Flask, request, send_file, jsonify
 import markdown
 import yaml
+import re
 
 from src.invert_color import invert_pdf_colors, remove_pages
 
@@ -218,6 +219,95 @@ def merge_pdfs():
                 pass
         
         return jsonify({'success': True, 'merged_filename': output_filename})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/customize-colors')
+def customize_colors_page():
+    return render_template('customize_colors.html')
+
+@app.route('/customize-pdf', methods=['POST'])
+def customize_pdf():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if not file.filename.lower().endswith('.pdf'):
+        return jsonify({'error': 'File must be a PDF'}), 400
+    
+    # Get color preferences
+    bg_color = request.form.get('bg_color', '#000000')
+    text_color = request.form.get('text_color', '#ffffff')
+    
+    # Validate hex color format
+    hex_pattern = re.compile(r'^#(?:[0-9a-fA-F]{3}){1,2}$')
+    if not hex_pattern.match(bg_color) or not hex_pattern.match(text_color):
+        return jsonify({'error': 'Invalid color format'}), 400
+    
+    try:
+        # Convert hex colors to RGB tuples
+        bg_rgb = tuple(int(bg_color.lstrip('#')[i:i+2], 16) / 255 for i in (0, 2, 4))
+        text_rgb = tuple(int(text_color.lstrip('#')[i:i+2], 16) / 255 for i in (0, 2, 4))
+                
+        # Save the uploaded file
+        input_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(input_path)
+        
+        # Create output filename
+        output_filename = f"customized_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+        output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
+        
+        # Open the PDF
+        doc = fitz.open(input_path)
+        
+        # Process each page
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            
+            # Create a rectangle covering the entire page
+            rect = page.rect
+            
+            # Add a colored background
+            page.draw_rect(rect, color=bg_rgb, fill=bg_rgb)
+            
+            # Get the text
+            text_blocks = page.get_text("dict")["blocks"]
+            
+            # Draw text in the specified color
+            for block in text_blocks:
+                if "lines" in block:
+                    for line in block["lines"]:
+                        for span in line["spans"]:
+                            # Extract text and position
+                            text = span["text"]
+                            origin = fitz.Point(span["origin"])
+                            font_size = span["size"]
+                            font_name = span["font"]
+                            
+                            # Draw text with new color
+                            page.insert_text(
+                                origin,
+                                text,
+                                fontsize=font_size,
+                                fontname=font_name,
+                                color=text_rgb
+                            )
+        
+        # Save the modified PDF
+        print("Saving the modified PDF")
+        doc.save(output_path)
+        doc.close()
+        
+        # Clean up the input file
+        try:
+            os.remove(input_path)
+        except:
+            pass
+        
+        return jsonify({'success': True, 'filename': output_filename})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
