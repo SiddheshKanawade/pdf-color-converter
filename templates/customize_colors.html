@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Customize PDF Colors - Create Dark Mode PDFs{% endblock %}
+{% block ogtitle %}Customize PDF Colors - Create Dark Mode PDFs{% endblock %}
+{% block ogdescription %}Transform your PDFs with custom background and text colors. Create eye-friendly dark mode PDFs for comfortable reading in any environment.{% endblock %}
+{% block canonical %}customize-colors{% endblock %}
+
+{% block content %}
+<section class="customize-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>Customize PDF Colors</h1>
+            <p class="section-description">Transform your PDFs with custom background and text colors. Create eye-friendly dark mode PDFs for comfortable reading.</p>
+        </div>
+        
+        <div class="customize-container">
+            <div id="upload-section">
+                <div class="file-upload-area">
+                    <div class="upload-prompt" id="drop-area">
+                        <div class="upload-icon">📄</div>
+                        <p>Drag and drop your PDF here, or click to select</p>
+                        <input type="file" id="file-input" accept=".pdf" class="hidden">
+                    </div>
+                </div>
+            </div>
+            
+            <div id="customize-section" class="hidden">
+                <div class="color-options">
+                    <div class="color-option">
+                        <label for="bg-color">Background Color</label>
+                        <div class="color-picker-container">
+                            <input type="color" id="bg-color" value="#1a1a1a">
+                            <input type="text" id="bg-color-hex" value="#1a1a1a">
+                        </div>
+                    </div>
+                    
+                    <div class="color-option">
+                        <label for="text-color">Text Color</label>
+                        <div class="color-picker-container">
+                            <input type="color" id="text-color" value="#ffffff">
+                            <input type="text" id="text-color-hex" value="#ffffff">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="color-preview">
+                    <h3>Preview</h3>
+                    <div id="preview-box" class="preview-box">
+                        <p>Sample text preview</p>
+                    </div>
+                </div>
+                
+                <div class="preset-colors">
+                    <h3>Preset Color Schemes</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-button" data-bg="#1a1a1a" data-text="#ffffff">Dark Mode</button>
+                        <button class="preset-button" data-bg="#0a2c38" data-text="#e0f7fa">Night Blue</button>
+                        <button class="preset-button" data-bg="#2d1b2e" data-text="#e6c0e9">Purple Night</button>
+                        <button class="preset-button" data-bg="#1e2a38" data-text="#c5d1eb">Midnight</button>
+                        <button class="preset-button" data-bg="#2a2a2a" data-text="#c8e6c9">Matrix</button>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="process-button" class="primary-button">Apply Colors & Download</button>
+                    <button id="cancel-button" class="control-button">Cancel</button>
+                </div>
+                
+                <div id="loading-indicator" class="loading-indicator hidden">
+                    <div class="spinner"></div>
+                    <p>Processing your PDF...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // DOM elements
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const uploadSection = document.getElementById('upload-section');
+    const customizeSection = document.getElementById('customize-section');
+    const bgColorInput = document.getElementById('bg-color');
+    const bgColorHex = document.getElementById('bg-color-hex');
+    const textColorInput = document.getElementById('text-color');
+    const textColorHex = document.getElementById('text-color-hex');
+    const previewBox = document.getElementById('preview-box');
+    const presetButtons = document.querySelectorAll('.preset-button');
+    const processButton = document.getElementById('process-button');
+    const cancelButton = document.getElementById('cancel-button');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    
+    // Variables
+    let selectedFile = null;
+    
+    // Event listeners
+    dropArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileSelect);
+    
+    dropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropArea.classList.add('dragover');
+    });
+    
+    dropArea.addEventListener('dragleave', () => {
+        dropArea.classList.remove('dragover');
+    });
+    
+    dropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropArea.classList.remove('dragover');
+        
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            handleFileSelect();
+        }
+    });
+    
+    bgColorInput.addEventListener('input', updateColors);
+    bgColorHex.addEventListener('input', updateFromHex);
+    textColorInput.addEventListener('input', updateColors);
+    textColorHex.addEventListener('input', updateFromHex);
+    
+    presetButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const bgColor = button.dataset.bg;
+            const textColor = button.dataset.text;
+            
+            bgColorInput.value = bgColor;
+            bgColorHex.value = bgColor;
+            textColorInput.value = textColor;
+            textColorHex.value = textColor;
+            
+            updatePreview();
+        });
+    });
+    
+    processButton.addEventListener('click', processFile);
+    cancelButton.addEventListener('click', resetForm);
+    
+    // Functions
+    function handleFileSelect() {
+        const file = fileInput.files[0];
+        
+        if (file && file.type === 'application/pdf') {
+            selectedFile = file;
+            uploadSection.classList.add('hidden');
+            customizeSection.classList.remove('hidden');
+            updatePreview();
+        } else {
+            alert('Please select a valid PDF file.');
+        }
+    }
+    
+    function updateColors(e) {
+        const input = e.target;
+        const hexInput = input.id === 'bg-color' ? bgColorHex : textColorHex;
+        hexInput.value = input.value;
+        updatePreview();
+    }
+    
+    function updateFromHex(e) {
+        const input = e.target;
+        const colorInput = input.id === 'bg-color-hex' ? bgColorInput : textColorInput;
+        
+        // Validate hex color
+        const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        if (hexRegex.test(input.value)) {
+            colorInput.value = input.value;
+            updatePreview();
+        }
+    }
+    
+    function updatePreview() {
+        previewBox.style.backgroundColor = bgColorInput.value;
+        previewBox.style.color = textColorInput.value;
+    }
+    
+    function resetForm() {
+        selectedFile = null;
+        fileInput.value = '';
+        customizeSection.classList.add('hidden');
+        uploadSection.classList.remove('hidden');
+    }
+    
+    async function processFile() {
+        if (!selectedFile) {
+            alert('Please select a PDF file.');
+            return;
+        }
+        
+        // Show loading indicator
+        loadingIndicator.classList.remove('hidden');
+        
+        // Create FormData
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('bg_color', bgColorInput.value);
+        formData.append('text_color', textColorInput.value);
+        
+        try {
+            const response = await fetch('/customize-pdf', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            // Hide loading indicator
+            loadingIndicator.classList.add('hidden');
+            
+            if (data.success) {
+                // Download the customized PDF
+                window.location.href = `/download/${data.filename}`;
+                
+                // Reset the form
+                resetForm();
+            } else {
+                alert(data.error || 'Processing failed');
+            }
+        } catch (error) {
+            console.error('Error processing PDF:', error);
+            alert('Error processing PDF');
+            loadingIndicator.classList.add('hidden');
+        }
+    }
+</script>
+{% endblock %} 
