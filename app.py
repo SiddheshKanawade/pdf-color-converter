@@ -14,6 +14,7 @@ import re
 import csv
 
 from src.invert_color import invert_pdf_colors, remove_pages
+from src.extract_data import extract_data_from_pdf
 
 app = Flask(__name__)
 
@@ -443,70 +444,6 @@ def extract_single():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-def extract_data_from_pdf(pdf_path, fields_to_extract=None):
-    """
-    Extract data from a PDF file.
-    
-    Args:
-        pdf_path: Path to the PDF file
-        fields_to_extract: List of field names to extract (if None, extract all detected fields)
-    
-    Returns:
-        Dictionary containing extracted data
-    """
-    try:
-        doc = fitz.open(pdf_path)
-        extracted_data = {}
-        
-        # Example extraction - modify according to your needs
-        for page_num in range(len(doc)):
-            page = doc[page_num]
-            text = page.get_text()
-            
-            # Example: Extract email
-            if fields_to_extract is None or 'email' in fields_to_extract:
-                email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-                emails = re.findall(email_pattern, text)
-                if emails:
-                    extracted_data['email'] = emails[0]
-            
-            # Example: Extract phone number
-            if fields_to_extract is None or 'phone' in fields_to_extract:
-                phone_pattern = r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b'
-                phones = re.findall(phone_pattern, text)
-                if phones:
-                    extracted_data['phone'] = phones[0]
-            
-            # Example: Extract dates
-            if fields_to_extract is None or 'date' in fields_to_extract:
-                date_pattern = r'\b\d{1,2}/\d{1,2}/\d{2,4}\b'
-                dates = re.findall(date_pattern, text)
-                if dates:
-                    extracted_data['date'] = dates[0]
-            
-            # Example: Extract name (if requested)
-            if fields_to_extract is not None and 'name' in fields_to_extract:
-                # This is a simplified example - in a real application, you would need
-                # more sophisticated name extraction logic
-                name_pattern = r'Mr\.|Mrs\.|Ms\.|Dr\.\s[A-Z][a-z]+ [A-Z][a-z]+'
-                names = re.findall(name_pattern, text)
-                if names:
-                    extracted_data['name'] = names[0]
-            
-            # Example: Extract address (if requested)
-            if fields_to_extract is not None and 'address' in fields_to_extract:
-                # This is a simplified example - in a real application, you would need
-                # more sophisticated address extraction logic
-                address_pattern = r'\d+ [A-Za-z]+ (?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct)'
-                addresses = re.findall(address_pattern, text)
-                if addresses:
-                    extracted_data['address'] = addresses[0]
-        
-        doc.close()
-        return extracted_data
-    except Exception as e:
-        print(f"Error extracting data from {pdf_path}: {str(e)}")
-        return {}
 
 if __name__ == '__main__':
     app.run(debug=True)
