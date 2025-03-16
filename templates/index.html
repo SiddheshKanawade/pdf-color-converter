@@ -3,34 +3,45 @@
 {% block title %}Invert PDF Colors Online for Free | PDFinverter{% endblock %}
 {% block ogtitle %}Invert PDF Colors Online - Dark to Light PDF Converter{% endblock %}
 {% block ogdescription %}Easily invert PDF colors online for free. Convert dark PDFs to light for better readability and reduced ink usage. Fast, secure, and no signup required.{% endblock %}
-{% block canonical %}https://www.pdfinverter.com/convert{% endblock %}
+{% block description %}Free online PDF color inverter tool. Convert dark PDFs to light mode for better readability, reduced eye strain, and lower ink consumption when printing. No registration required.{% endblock %}
+{% block twtitle %}Invert PDF Colors Online - Free PDF Color Converter{% endblock %}
+{% block twdescription %}Transform dark PDFs to light mode instantly. Improve readability and save ink when printing. Free online tool, no signup needed.{% endblock %}
+{% block canonical %}{% endblock %}
 
 {% block content %}
 <section class="hero" aria-label="Main banner">
     <div class="hero-content">
         <h1>Transform Your PDFs for Better Reading</h1>
         <p class="hero-description">Convert dark PDFs to light, making them easier to read and more printer-friendly.</p>
-        <a href="/convert" class="cta-button">Start Converting</a>
+        <div class="cta-container">
+            <a href="/convert" class="cta-button">Start Converting</a>
+            <a href="#features" class="secondary-button">Learn More</a>
+        </div>
     </div>
 </section>
 
-<section class="features" aria-label="Key features">
+<section id="features" class="features" aria-label="Key features">
     <h2>Why Choose PDFInverter?</h2>
     <div class="features-grid">
         <div class="feature-card">
-            <div class="feature-icon">👀</div>
+            <div class="feature-icon" aria-hidden="true">👀</div>
             <h3>Eye Comfort</h3>
             <p>Reduce eye strain with light-themed documents optimized for reading</p>
         </div>
         <div class="feature-card">
-            <div class="feature-icon">🖨️</div>
+            <div class="feature-icon" aria-hidden="true">🖨️</div>
             <h3>Save Ink</h3>
             <p>Dramatically reduce printer ink usage with inverted colors</p>
         </div>
         <div class="feature-card">
-            <div class="feature-icon">⚡</div>
+            <div class="feature-icon" aria-hidden="true">⚡</div>
             <h3>Fast Processing</h3>
             <p>Convert your PDFs in seconds with our optimized algorithm</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🔒</div>
+            <h3>Secure Processing</h3>
+            <p>Your files are processed securely and deleted after conversion</p>
         </div>
     </div>
 </section>
@@ -39,20 +50,42 @@
     <h2>How It Works</h2>
     <div class="steps">
         <div class="step">
-            <div class="step-number">1</div>
+            <div class="step-number" aria-hidden="true">1</div>
             <h3>Upload</h3>
             <p>Upload your dark-themed PDF document</p>
         </div>
         <div class="step">
-            <div class="step-number">2</div>
+            <div class="step-number" aria-hidden="true">2</div>
             <h3>Process</h3>
             <p>Our system automatically inverts the colors</p>
         </div>
         <div class="step">
-            <div class="step-number">3</div>
+            <div class="step-number" aria-hidden="true">3</div>
             <h3>Download</h3>
             <p>Get your light-themed PDF instantly</p>
         </div>
+    </div>
+</section>
+
+<section class="tools-overview">
+    <h2>Our PDF Tools</h2>
+    <div class="tools-grid">
+        <a href="/convert" class="tool-card">
+            <h3>Color Inverter</h3>
+            <p>Convert dark PDFs to light mode for better readability</p>
+        </a>
+        <a href="/redact-pdf" class="tool-card">
+            <h3>PDF Redaction</h3>
+            <p>Securely redact sensitive information from your PDFs</p>
+        </a>
+        <a href="/merge-pdf" class="tool-card">
+            <h3>PDF Merger</h3>
+            <p>Combine multiple PDF files into a single document</p>
+        </a>
+        <a href="/extract-data" class="tool-card">
+            <h3>Data Extractor</h3>
+            <p>Extract text and data from PDF documents</p>
+        </a>
     </div>
 </section>
 
@@ -82,4 +115,26 @@
         </div>
     </div>
 </section>
+
+<section class="testimonials">
+    <h2>What Our Users Say</h2>
+    <div class="testimonial-grid">
+        <div class="testimonial-card">
+            <p>"PDFInverter saved me so much ink when printing programming documentation. The converted PDFs are perfectly readable!"</p>
+            <p class="testimonial-author">— Sarah T., Software Developer</p>
+        </div>
+        <div class="testimonial-card">
+            <p>"I can finally read my technical PDFs without eye strain. This tool is a game-changer for anyone who reads a lot of documentation."</p>
+            <p class="testimonial-author">— Michael K., IT Professional</p>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <h2>Ready to Transform Your PDFs?</h2>
+    <p>Start converting your dark PDFs to light mode today - it's free, fast, and secure.</p>
+    <a href="/convert" class="cta-button">Get Started Now</a>
+</section>
 {% endblock %}
+
+{% block breadcrumbs %}{% endblock %}

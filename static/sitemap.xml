@@ -4,21 +4,25 @@
         <loc>https://www.pdfinverter.com/</loc>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
+        <lastmod>2024-03-16</lastmod>
     </url>
     <url>
         <loc>https://www.pdfinverter.com/convert</loc>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
+        <lastmod>2024-03-16</lastmod>
     </url>
     <url>
-        <loc>https://www.pdfinverter.com/about</loc>
+        <loc>https://www.pdfinverter.com/edit-pages</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
+        <lastmod>2024-03-16</lastmod>
     </url>
     <url>
         <loc>https://www.pdfinverter.com/blog</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
+        <lastmod>2024-03-16</lastmod>
     </url>
     <url>
         <loc>https://www.pdfinverter.com/blog/cost-of-printing-dark-pdfs</loc>
@@ -54,15 +58,24 @@
         <loc>https://www.pdfinverter.com/redact-pdf</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
+        <lastmod>2024-03-16</lastmod>
     </url>
     <url>
         <loc>https://www.pdfinverter.com/merge-pdf</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
+        <lastmod>2024-03-16</lastmod>
     </url>
     <url>
         <loc>https://www.pdfinverter.com/customize-colors</loc>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
+        <lastmod>2024-03-16</lastmod>
+    </url>
+    <url>
+        <loc>https://www.pdfinverter.com/extract-data</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <lastmod>2024-03-16</lastmod>
     </url>
 </urlset> 

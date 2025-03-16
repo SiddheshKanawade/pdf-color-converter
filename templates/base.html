@@ -4,17 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{% block description %}Free online tool to convert dark PDFs to light versions. Make your PDFs easier to read and save printer ink.{% endblock %}">
-    <meta name="keywords" content="PDF converter, dark to light PDF, PDF color inverter, eye-friendly PDF, printer-friendly PDF">
+    <meta name="keywords" content="PDF converter, dark to light PDF, PDF color inverter, eye-friendly PDF, printer-friendly PDF, PDF editor, PDF tools">
     <meta name="author" content="PDFInverter">
     <meta property="og:title" content="{% block ogtitle %}PDFInverter - Convert Dark PDFs to Light{% endblock %}">
     <meta property="og:description" content="{% block ogdescription %}Transform dark PDFs into light, eye-friendly documents. Perfect for reading and printing.{% endblock %}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.url }}">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="{{ url_for('static', filename='images/og-image.jpg', _external=True) }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twtitle %}PDFInverter - Convert Dark PDFs to Light{% endblock %}">
+    <meta name="twitter:description" content="{% block twdescription %}Transform dark PDFs into light, eye-friendly documents. Perfect for reading and printing.{% endblock %}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='images/twitter-card.jpg', _external=True) }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ request.url_root }}{% block canonical %}{% endblock %}">
     <title>{% block title %}PDF Color Inverter{% endblock %} | PDFInverter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -27,26 +35,50 @@
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "USD"
+        },
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
+        "creator": {
+            "@type": "Organization",
+            "name": "PDFInverter",
+            "url": "{{ request.url_root }}"
         }
+    }
+    </script>
+    <!-- Breadcrumb structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "{{ request.url_root }}"
+            }{% block breadcrumbs %}{% endblock %}
+        ]
     }
     </script>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <a href="/" class="logo">PDFInverter</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/convert">Convert PDF</a>
-                <a href="/redact-pdf">Redact PDF</a>
-                <a href="/merge-pdf">Merge PDFs</a>
-                <a href="/customize-colors">Dark Mode</a>
-                <a href="/extract-data">Extract Data</a>
-                <a href="/blog">Blog</a>
-                <a href="/#about">About</a>
+    <header>
+        <nav class="navbar">
+            <div class="nav-content">
+                <a href="/" class="logo">PDFInverter</a>
+                <div class="nav-links">
+                    <a href="/" {% if request.path == '/' %}aria-current="page"{% endif %}>Home</a>
+                    <a href="/convert" {% if request.path == '/convert' %}aria-current="page"{% endif %}>Convert PDF</a>
+                    <a href="/redact-pdf" {% if request.path == '/redact-pdf' %}aria-current="page"{% endif %}>Redact PDF</a>
+                    <a href="/merge-pdf" {% if request.path == '/merge-pdf' %}aria-current="page"{% endif %}>Merge PDFs</a>
+                    <a href="/customize-colors" {% if request.path == '/customize-colors' %}aria-current="page"{% endif %}>Dark Mode</a>
+                    <a href="/extract-data" {% if request.path == '/extract-data' %}aria-current="page"{% endif %}>Extract Data</a>
+                    <a href="/blog" {% if request.path == '/blog' %}aria-current="page"{% endif %}>Blog</a>
+                    <a href="/#about">About</a>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <main>
         {% block content %}{% endblock %}

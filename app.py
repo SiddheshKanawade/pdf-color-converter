@@ -7,16 +7,20 @@ import json
 import numpy as np
 from datetime import datetime
 from flask import render_template_string
-from flask import Flask, request, send_file, jsonify
+from flask import Flask, request, send_file, jsonify, make_response
 import markdown
 import yaml
 import re
 import csv
+from functools import wraps
+import time
+from flask_compress import Compress
 
 from src.invert_color import invert_pdf_colors, remove_pages
 from src.extract_data import extract_data_from_pdf
 
 app = Flask(__name__)
+Compress(app)  # Enable compression properly using Flask-Compress
 
 # Configure upload and processed directories
 UPLOAD_FOLDER = '/tmp/uploads'
@@ -28,15 +32,29 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 16MB max file size
 
+# Cache control for static assets
+def cache_control(max_age):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            response = make_response(f(*args, **kwargs))
+            response.headers['Cache-Control'] = f'public, max-age={max_age}'
+            return response
+        return decorated_function
+    return decorator
+
 @app.route('/')
+@cache_control(3600)  # Cache for 1 hour
 def index():
     return render_template('index.html')
 
 @app.route('/convert')
+@cache_control(3600)
 def convert():
     return render_template('convert.html')
 
 @app.route('/edit-pages')
+@cache_control(3600)
 def edit_pages():
     return render_template('remove.html')
 
@@ -444,6 +462,72 @@ def extract_single():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/sitemap.xml')
+def sitemap():
+    """Generate a dynamic sitemap"""
+    host_base = request.host_url.rstrip('/')
+    
+    # Define static routes
+    static_routes = [
+        '',
+        '/convert',
+        '/edit-pages',
+        '/redact-pdf',
+        '/merge-pdf',
+        '/customize-colors',
+        '/extract-data',
+        '/blog'
+    ]
+    
+    # Get blog posts from content directory
+    blog_posts = []
+    content_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'content')
+    if os.path.exists(content_dir):
+        for filename in os.listdir(content_dir):
+            if filename.endswith('.md'):
+                slug = filename[:-3]  # Remove .md extension
+                blog_posts.append(f'/blog/{slug}')
+    
+    # Combine all routes
+    pages = []
+    today = datetime.now().strftime('%Y-%m-%d')
+    
+    # Add static routes
+    for route in static_routes:
+        pages.append({
+            'loc': f'{host_base}{route}',
+            'lastmod': today,
+            'changefreq': 'weekly' if route in ['', '/blog'] else 'monthly',
+            'priority': '1.0' if route == '' else '0.8'
+        })
+    
+    # Add blog posts
+    for route in blog_posts:
+        pages.append({
+            'loc': f'{host_base}{route}',
+            'lastmod': today,
+            'changefreq': 'monthly',
+            'priority': '0.7'
+        })
+    
+    sitemap_xml = render_template('sitemap.xml', pages=pages)
+    response = make_response(sitemap_xml)
+    response.headers['Content-Type'] = 'application/xml'
+    return response
+
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory(app.static_folder, 'robots.txt')
+
+# Add security headers without compression
+@app.after_request
+def add_header(response):
+    # Add security headers
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True)
