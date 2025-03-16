@@ -74,7 +74,23 @@ def get_ocr_response(pdf_file):
     
     return pdf_response
 
-def jsonify_ocr_response(markdown):
+def get_prompt_for_markdown(markdown, fields_to_extract=None):
+    if fields_to_extract is None:
+        return (
+            f"This is document's OCR in markdown:\n\n{markdown}\n.\n"
+            "Convert this into a sensible structured json response. "
+            "The output should be strictly be json with no extra commentary"
+        )
+    else:
+        return (
+            f"This is document's OCR in markdown:\n\n{markdown}\n.\n"
+            "Convert this into a sensible structured json response. "
+            f"Extract the following fields: {', '.join(fields_to_extract)}"
+            "If given fields are not present in the document, return an empty string for that field. "
+            "The output should be strictly be json with no extra commentary"
+        )
+
+def jsonify_ocr_response(markdown, prompt):
     # Get structured response from model
     chat_response = client.chat.complete(
         model="ministral-8b-latest",
@@ -113,18 +129,16 @@ def extract_data_from_pdf(pdf_path, fields_to_extract=None):
         Dictionary containing extracted data
     """
     try:
-        print(f"Extracting data from {pdf_path}...")
+        if fields_to_extract:
+            print(f"Extracting data from {pdf_path} with fields_to_extract: {fields_to_extract}")
+        else:
+            print(f"Extracting data from {pdf_path} w/o fields_to_extract")
         ocr_response = get_ocr_response(pdf_path)
         combined_markdown = get_combined_markdown(ocr_response)
-        json_response = jsonify_ocr_response(combined_markdown)
-        print(json_response)
-        # print("Fields to extract:", fields_to_extract)
+        prompt = get_prompt_for_markdown(combined_markdown, fields_to_extract)
+        json_response = jsonify_ocr_response(combined_markdown, prompt=prompt)
         
-        # Call mistral OCR to get OCR for pdf
-        # Merge the markdown together for all the pages. Expectation is that every pdf would be under 5 pages
-        # For all pages of pdf, get JSON extracted
-        # If keys are present
-        
+        return json_response
     except Exception as e:
         print(f"Error extracting data from {pdf_path}: {str(e)}")
         return {}
