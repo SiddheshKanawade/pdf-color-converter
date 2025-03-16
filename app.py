@@ -11,8 +11,10 @@ from flask import Flask, request, send_file, jsonify
 import markdown
 import yaml
 import re
+import csv
 
 from src.invert_color import invert_pdf_colors, remove_pages
+from src.extract_data import extract_data_from_pdf
 
 app = Flask(__name__)
 
@@ -310,6 +312,138 @@ def customize_pdf():
         return jsonify({'success': True, 'filename': output_filename})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/extract-data', methods=['GET'])
+def extract_data_page():
+    return render_template('extract-data.html')
+
+@app.route('/extract-batch', methods=['POST'])
+def extract_batch():
+    if 'files[]' not in request.files:
+        return jsonify({'error': 'No files uploaded'}), 400
+    
+    files = request.files.getlist('files[]')
+    if not files or files[0].filename == '':
+        return jsonify({'error': 'No files selected'}), 400
+    
+    # Check if all files are PDFs
+    for file in files:
+        if not file.filename.lower().endswith('.pdf'):
+            return jsonify({'error': 'All files must be PDFs'}), 400
+    
+    # Check total size limit (100MB)
+    total_size = 0
+    for file in files:
+        file.seek(0, os.SEEK_END)
+        total_size += file.tell()
+        file.seek(0)
+    
+    if total_size > 100 * 1024 * 1024:  # 100MB in bytes
+        return jsonify({'error': 'Total size exceeds 100MB limit'}), 400
+    
+    if len(files) > 100:
+        return jsonify({'error': 'Maximum 100 PDFs allowed'}), 400
+    
+    # Get fields to extract (if specified)
+    fields_to_extract = None
+    if 'fields' in request.form and request.form['fields'].strip():
+        fields_to_extract = [field.strip() for field in request.form['fields'].split(',')]
+    
+    try:
+        # Create a temporary directory for processing
+        temp_dir = os.path.join(app.config['UPLOAD_FOLDER'], f"batch_{datetime.now().strftime('%Y%m%d%H%M%S')}")
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Save files temporarily
+        file_paths = []
+        for file in files:
+            temp_path = os.path.join(temp_dir, file.filename)
+            file.save(temp_path)
+            file_paths.append(temp_path)
+        
+        # Process PDFs and extract data
+        extracted_data = []
+        for path in file_paths:
+            # Extract data from PDF
+            data = extract_data_from_pdf(path, fields_to_extract)
+            extracted_data.append({
+                'filename': os.path.basename(path),
+                'data': data
+            })
+        
+        # Create CSV from extracted data
+        csv_filename = f"extracted_data_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv"
+        csv_path = os.path.join(app.config['PROCESSED_FOLDER'], csv_filename)
+        
+        # Write CSV file
+        with open(csv_path, 'w', newline='') as csvfile:
+            # Determine all possible fields from all documents
+            all_fields = set()
+            for item in extracted_data:
+                all_fields.update(item['data'].keys())
+            
+            fieldnames = ['filename'] + sorted(list(all_fields))
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            
+            for item in extracted_data:
+                row = {'filename': item['filename']}
+                row.update(item['data'])
+                writer.writerow(row)
+        
+        # Clean up temporary files
+        for path in file_paths:
+            try:
+                os.remove(path)
+            except:
+                pass
+        try:
+            os.rmdir(temp_dir)
+        except:
+            pass
+        
+        return jsonify({'success': True, 'csv_filename': csv_filename})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/extract-single', methods=['POST'])
+def extract_single():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    if not file.filename.lower().endswith('.pdf'):
+        return jsonify({'error': 'File must be a PDF'}), 400
+    
+    # Check file size (45MB)
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    file.seek(0)
+    
+    if file_size > 45 * 1024 * 1024:  # 45MB in bytes
+        return jsonify({'error': 'File size exceeds 45MB limit'}), 400
+    
+    try:
+        # Save file temporarily
+        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(temp_path)
+        
+        # Extract data from PDF
+        data = extract_data_from_pdf(temp_path)
+        
+        # Clean up temporary file
+        try:
+            os.remove(temp_path)
+        except:
+            pass
+        
+        return jsonify({'success': True, 'data': data})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
