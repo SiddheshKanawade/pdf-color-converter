@@ -35,3 +35,10 @@ pip-delete-this-directory.txt
 *.pdf
 uploads/
 .vercel
+
+.env
+
+notebooks/output.html
+notebooks/parse.md
+notebooks/render.py
+notebooks/output_html.py

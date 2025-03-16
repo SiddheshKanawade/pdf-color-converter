@@ -1,0 +1,976 @@
+{% extends "base.html" %}
+
+{% block title %}Extract Data from PDFs{% endblock %}
+{% block ogtitle %}Extract Data from PDFs - Structured Data Extraction{% endblock %}
+{% block ogdescription %}Extract structured data from PDF files. Process single PDFs or batch process up to 100 files at once with our powerful extraction tool.{% endblock %}
+{% block canonical %}extract-data{% endblock %}
+
+{% block content %}
+<section class="extract-data-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>Extract Data from PDFs</h1>
+            <p class="section-description">Upload PDF files to extract structured data. Choose between batch processing for multiple files or single file extraction for detailed results.</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-button active" data-tab="batch">Batch Processing</button>
+            <button class="tab-button" data-tab="single">Single PDF</button>
+        </div>
+        
+        <div class="tab-content">
+            <!-- Batch Processing Tab -->
+            <div class="tab-pane active" id="batch-tab">
+                <div class="batch-container">
+                    <div class="info-box">
+                        <h3>Batch Processing</h3>
+                        <ul>
+                            <li>Upload up to 100 PDFs of similar structure</li>
+                            <li>Maximum total size: 100 MB</li>
+                            <li>Results will be provided as a CSV file</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="extraction-fields">
+                        <label for="batch-fields">Fields to extract (comma separated)</label>
+                        <input type="text" id="batch-fields" placeholder="e.g., email,phone,date,name,address" class="field-input">
+                        <p class="field-help">Specify the fields to extract from your PDFs. Leave empty to extract all detected fields.</p>
+                        <div class="field-examples">
+                            <p class="field-examples-label">Click to add common fields:</p>
+                            <span class="field-tag">email</span>
+                            <span class="field-tag">phone</span>
+                            <span class="field-tag">date</span>
+                            <span class="field-tag">name</span>
+                            <span class="field-tag">address</span>
+                        </div>
+                    </div>
+                    
+                    <div class="file-upload-area">
+                        <div class="upload-prompt" id="batch-drop-area">
+                            <div class="upload-icon">📄</div>
+                            <p>Drag and drop PDF files here, or click to select</p>
+                            <input type="file" id="batch-file-input" accept=".pdf" multiple class="hidden">
+                        </div>
+                    </div>
+                    
+                    <div class="file-list-container">
+                        <h3>Files to process</h3>
+                        <p class="file-count">0 files selected (0 MB)</p>
+                        <ul id="batch-file-list" class="file-list"></ul>
+                        
+                        <div class="extract-actions">
+                            <button id="batch-extract-button" class="primary-button" disabled>Extract Data</button>
+                            <button id="batch-clear-files" class="control-button" disabled>Clear All</button>
+                        </div>
+                    </div>
+                    
+                    <div id="batch-loading-indicator" class="loading-indicator hidden">
+                        <div class="spinner"></div>
+                        <p>Processing your PDFs...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Single PDF Tab -->
+            <div class="tab-pane" id="single-tab">
+                <div class="single-container">
+                    <div class="info-box">
+                        <h3>Single PDF Processing</h3>
+                        <ul>
+                            <li>Upload a single PDF file</li>
+                            <li>Maximum file size: 45 MB</li>
+                            <li>Results will be provided as JSON</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="file-upload-area">
+                        <div class="upload-prompt" id="single-drop-area">
+                            <div class="upload-icon">📄</div>
+                            <p>Drag and drop a PDF file here, or click to select</p>
+                            <input type="file" id="single-file-input" accept=".pdf" class="hidden">
+                        </div>
+                    </div>
+                    
+                    <div class="single-file-info hidden">
+                        <h3>Selected File</h3>
+                        <p id="single-file-name"></p>
+                        <p id="single-file-size"></p>
+                        
+                        <div class="extract-actions">
+                            <button id="single-extract-button" class="primary-button">Extract Data</button>
+                            <button id="single-clear-file" class="control-button">Clear</button>
+                        </div>
+                    </div>
+                    
+                    <div id="single-loading-indicator" class="loading-indicator hidden">
+                        <div class="spinner"></div>
+                        <p>Processing your PDF...</p>
+                    </div>
+                    
+                    <div id="result-container" class="result-container hidden">
+                        <h3>Extracted Data</h3>
+                        <pre id="json-result"></pre>
+                        <button id="download-json" class="control-button">Download JSON</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Update active tab button
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Show active tab pane
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+        
+        // Batch Processing
+        const batchDropArea = document.getElementById('batch-drop-area');
+        const batchFileInput = document.getElementById('batch-file-input');
+        const batchFileList = document.getElementById('batch-file-list');
+        const batchExtractButton = document.getElementById('batch-extract-button');
+        const batchClearButton = document.getElementById('batch-clear-files');
+        const batchLoadingIndicator = document.getElementById('batch-loading-indicator');
+        const fileCountDisplay = document.querySelector('.file-count');
+        
+        let batchFiles = [];
+        let totalSize = 0;
+        
+        // Drag and drop for batch
+        batchDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            batchDropArea.classList.add('dragover');
+        });
+        
+        batchDropArea.addEventListener('dragleave', () => {
+            batchDropArea.classList.remove('dragover');
+        });
+        
+        batchDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            batchDropArea.classList.remove('dragover');
+            handleBatchFiles(e.dataTransfer.files);
+        });
+        
+        batchDropArea.addEventListener('click', () => {
+            batchFileInput.click();
+        });
+        
+        batchFileInput.addEventListener('change', (e) => {
+            handleBatchFiles(e.target.files);
+        });
+        
+        batchClearButton.addEventListener('click', clearBatchFiles);
+        
+        batchExtractButton.addEventListener('click', processBatchFiles);
+        
+        // Field tag click handling
+        document.querySelectorAll('.field-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                const fieldInput = document.getElementById('batch-fields');
+                const fieldName = tag.textContent.trim();
+                
+                // Get current value and split into array
+                const currentFields = fieldInput.value.split(',').map(f => f.trim()).filter(f => f);
+                
+                // Add field if not already present
+                if (!currentFields.includes(fieldName)) {
+                    if (currentFields.length > 0) {
+                        fieldInput.value = currentFields.join(', ') + ', ' + fieldName;
+                    } else {
+                        fieldInput.value = fieldName;
+                    }
+                }
+            });
+        });
+        
+        function handleBatchFiles(fileList) {
+            const newFiles = Array.from(fileList).filter(file => file.type === 'application/pdf');
+            
+            if (newFiles.length === 0) {
+                alert('Please select PDF files only');
+                return;
+            }
+            
+            // Check if adding these files would exceed limits
+            const newTotalSize = totalSize + newFiles.reduce((sum, file) => sum + file.size, 0);
+            const newTotalCount = batchFiles.length + newFiles.length;
+            
+            if (newTotalSize > 100 * 1024 * 1024) {
+                alert('Total file size would exceed 100MB limit');
+                return;
+            }
+            
+            if (newTotalCount > 100) {
+                alert('Maximum 100 PDFs allowed');
+                return;
+            }
+            
+            // Add files to our collection
+            batchFiles = [...batchFiles, ...newFiles];
+            totalSize = newTotalSize;
+            
+            // Update UI
+            updateBatchFileList();
+            updateBatchButtons();
+        }
+        
+        function updateBatchFileList() {
+            batchFileList.innerHTML = '';
+            
+            batchFiles.forEach((file, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'file-item';
+                listItem.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">${formatFileSize(file.size)}</span>
+                    </div>
+                    <button class="remove-file" data-index="${index}">×</button>
+                `;
+                batchFileList.appendChild(listItem);
+            });
+            
+            // Update file count display
+            fileCountDisplay.textContent = `${batchFiles.length} files selected (${formatFileSize(totalSize)})`;
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-file').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    totalSize -= batchFiles[index].size;
+                    batchFiles.splice(index, 1);
+                    updateBatchFileList();
+                    updateBatchButtons();
+                });
+            });
+        }
+        
+        function updateBatchButtons() {
+            batchExtractButton.disabled = batchFiles.length === 0;
+            batchClearButton.disabled = batchFiles.length === 0;
+        }
+        
+        function clearBatchFiles() {
+            batchFiles = [];
+            totalSize = 0;
+            updateBatchFileList();
+            updateBatchButtons();
+        }
+        
+        async function processBatchFiles() {
+            if (batchFiles.length === 0) {
+                alert('Please add at least one PDF file to process.');
+                return;
+            }
+            
+            // Show loading indicator
+            batchLoadingIndicator.classList.remove('hidden');
+            
+            // Create FormData
+            const formData = new FormData();
+            batchFiles.forEach(file => {
+                formData.append('files[]', file);
+            });
+            
+            // Add extraction fields if specified
+            const extractionFields = document.getElementById('batch-fields').value.trim();
+            if (extractionFields) {
+                formData.append('fields', extractionFields);
+            }
+            
+            try {
+                const response = await fetch('/extract-batch', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Hide loading indicator
+                batchLoadingIndicator.classList.add('hidden');
+                
+                if (data.success) {
+                    // Download the CSV file
+                    window.location.href = `/download/${data.csv_filename}`;
+                    
+                    // Clear the file list
+                    clearBatchFiles();
+                } else {
+                    alert(data.error || 'Processing failed');
+                }
+            } catch (error) {
+                console.error('Error processing files:', error);
+                batchLoadingIndicator.classList.add('hidden');
+                alert('Error processing files');
+            }
+        }
+        
+        // Single PDF Processing
+        const singleDropArea = document.getElementById('single-drop-area');
+        const singleFileInput = document.getElementById('single-file-input');
+        const singleFileInfo = document.querySelector('.single-file-info');
+        const singleFileName = document.getElementById('single-file-name');
+        const singleFileSize = document.getElementById('single-file-size');
+        const singleExtractButton = document.getElementById('single-extract-button');
+        const singleClearButton = document.getElementById('single-clear-file');
+        const singleLoadingIndicator = document.getElementById('single-loading-indicator');
+        const resultContainer = document.getElementById('result-container');
+        const jsonResult = document.getElementById('json-result');
+        const downloadJsonButton = document.getElementById('download-json');
+        
+        let singleFile = null;
+        let extractedData = null;
+        
+        // Drag and drop for single
+        singleDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            singleDropArea.classList.add('dragover');
+        });
+        
+        singleDropArea.addEventListener('dragleave', () => {
+            singleDropArea.classList.remove('dragover');
+        });
+        
+        singleDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            singleDropArea.classList.remove('dragover');
+            handleSingleFile(e.dataTransfer.files[0]);
+        });
+        
+        singleDropArea.addEventListener('click', () => {
+            singleFileInput.click();
+        });
+        
+        singleFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleSingleFile(e.target.files[0]);
+            }
+        });
+        
+        singleClearButton.addEventListener('click', clearSingleFile);
+        
+        singleExtractButton.addEventListener('click', processSingleFile);
+        
+        downloadJsonButton.addEventListener('click', downloadJson);
+        
+        function handleSingleFile(file) {
+            if (!file) return;
+            
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file');
+                return;
+            }
+            
+            if (file.size > 45 * 1024 * 1024) {
+                alert('File size exceeds 45MB limit');
+                return;
+            }
+            
+            singleFile = file;
+            
+            // Update UI
+            singleFileName.textContent = file.name;
+            singleFileSize.textContent = formatFileSize(file.size);
+            singleFileInfo.classList.remove('hidden');
+            singleDropArea.classList.add('hidden');
+            resultContainer.classList.add('hidden');
+        }
+        
+        function clearSingleFile() {
+            singleFile = null;
+            extractedData = null;
+            singleFileInfo.classList.add('hidden');
+            singleDropArea.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            singleFileInput.value = '';
+        }
+        
+        async function processSingleFile() {
+            if (!singleFile) {
+                alert('Please select a PDF file to process.');
+                return;
+            }
+            
+            // Show loading indicator
+            singleLoadingIndicator.classList.remove('hidden');
+            
+            // Create FormData
+            const formData = new FormData();
+            formData.append('file', singleFile);
+            
+            try {
+                const response = await fetch('/extract-single', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Hide loading indicator
+                singleLoadingIndicator.classList.add('hidden');
+                
+                if (data.success) {
+                    // Display the JSON result
+                    extractedData = data.data;
+                    jsonResult.textContent = JSON.stringify(extractedData, null, 2);
+                    resultContainer.classList.remove('hidden');
+                } else {
+                    alert(data.error || 'Processing failed');
+                }
+            } catch (error) {
+                console.error('Error processing file:', error);
+                singleLoadingIndicator.classList.add('hidden');
+                alert('Error processing file');
+            }
+        }
+        
+        function downloadJson() {
+            if (!extractedData) return;
+            
+            const dataStr = JSON.stringify(extractedData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `extracted_data_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Utility function
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+</script>
+
+<style>
+    .extract-data-section {
+        padding: 3rem 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        min-height: calc(100vh - 300px);
+    }
+    
+    .container {
+        width: 100%;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    
+    .section-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+        letter-spacing: -0.02em;
+    }
+    
+    .section-description {
+        font-size: 1.125rem;
+        color: var(--secondary-color);
+        max-width: 700px;
+        margin: 0 auto 1.5rem;
+        line-height: 1.6;
+    }
+    
+    .tabs {
+        display: flex;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+        justify-content: center;
+    }
+    
+    .tab-button {
+        padding: 0.75rem 1.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--secondary-color);
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s ease;
+        margin: 0 0.5rem;
+    }
+    
+    .tab-button:hover {
+        color: var(--accent-color);
+    }
+    
+    .tab-button.active {
+        color: var(--accent-color);
+        border-bottom-color: var(--accent-color);
+        font-weight: 600;
+    }
+    
+    .tab-pane {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .tab-pane.active {
+        display: block;
+    }
+    
+    .batch-container,
+    .single-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .info-box {
+        background-color: rgba(74, 108, 247, 0.05);
+        border-left: 4px solid var(--accent-color);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 2rem;
+    }
+    
+    .info-box h3 {
+        margin-top: 0;
+        margin-bottom: 0.75rem;
+        color: var(--accent-color);
+        font-weight: 600;
+    }
+    
+    .info-box ul {
+        margin: 0;
+        padding-left: 1.5rem;
+        color: var(--secondary-color);
+    }
+    
+    .info-box li {
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+    
+    .info-box li:last-child {
+        margin-bottom: 0;
+    }
+    
+    .extraction-fields {
+        margin-bottom: 2rem;
+    }
+    
+    .field-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+    }
+    
+    .field-input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.1);
+    }
+    
+    .field-help {
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+        margin-top: 0.25rem;
+    }
+    
+    .field-examples {
+        margin-top: 0.5rem;
+    }
+    
+    .field-examples-label {
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+        margin-bottom: 0.5rem;
+        font-style: italic;
+    }
+    
+    .field-tag {
+        background-color: rgba(74, 108, 247, 0.05);
+        border: 1px solid var(--accent-color);
+        border-radius: 8px;
+        padding: 0.25rem 0.5rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+        font-size: 0.85rem;
+        color: var(--accent-color);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .field-tag:hover {
+        background-color: var(--accent-color);
+        color: white;
+    }
+    
+    .file-upload-area {
+        margin-bottom: 2rem;
+    }
+    
+    .upload-prompt {
+        border: 2px dashed #ccc;
+        border-radius: 12px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #fafafa;
+    }
+    
+    .upload-prompt:hover, .upload-prompt.dragover {
+        border-color: var(--accent-color);
+        background-color: rgba(74, 108, 247, 0.05);
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--accent-color);
+    }
+    
+    .upload-prompt p {
+        font-size: 1.1rem;
+        color: var(--secondary-color);
+        margin: 0;
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+    
+    .file-list-container {
+        margin-top: 2rem;
+    }
+    
+    .file-count {
+        font-size: 0.95rem;
+        color: var(--secondary-color);
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+    
+    .file-list {
+        list-style: none;
+        padding: 0;
+        margin: 1rem 0 2rem;
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background-color: white;
+    }
+    
+    .file-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.85rem 1.25rem;
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.2s ease;
+    }
+    
+    .file-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .file-item:last-child {
+        border-bottom: none;
+    }
+    
+    .file-info {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .file-name {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 400px;
+    }
+    
+    .file-size {
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+    }
+    
+    .remove-file {
+        background: none;
+        border: none;
+        color: #ff4d4f;
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+    }
+    
+    .remove-file:hover {
+        background-color: rgba(255, 77, 79, 0.1);
+    }
+    
+    .extract-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .primary-button {
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+        padding: 0.85rem 1.75rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+        box-shadow: 0 2px 6px rgba(0, 112, 243, 0.2);
+    }
+    
+    .primary-button:hover {
+        background-color: var(--hover-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 112, 243, 0.3);
+    }
+    
+    .primary-button:active {
+        transform: translateY(0);
+    }
+    
+    .primary-button:disabled {
+        background-color: #a0aec0;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .control-button {
+        background-color: white;
+        color: var(--secondary-color);
+        border: 1px solid var(--border-color);
+        padding: 0.85rem 1.75rem;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+    }
+    
+    .control-button:hover {
+        background-color: #f8f9fa;
+        border-color: #ccc;
+    }
+    
+    .control-button:disabled {
+        color: #cbd5e0;
+        background-color: #f8f9fa;
+        cursor: not-allowed;
+    }
+    
+    .loading-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 2.5rem 0;
+    }
+    
+    .spinner {
+        border: 4px solid rgba(0, 112, 243, 0.1);
+        border-radius: 50%;
+        border-top: 4px solid var(--accent-color);
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .loading-indicator p {
+        color: var(--secondary-color);
+        font-weight: 500;
+    }
+    
+    .single-file-info {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+    
+    .single-file-info h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+    
+    .single-file-info p {
+        margin: 0.5rem 0;
+        color: var(--secondary-color);
+    }
+    
+    #single-file-name {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .result-container {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .result-container h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    #json-result {
+        background-color: #f8f9fa;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1.25rem;
+        overflow-x: auto;
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 1.5rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: #333;
+    }
+    
+    @media (max-width: 768px) {
+        .extract-data-section {
+            padding: 2rem 1rem;
+        }
+        
+        .section-header h1 {
+            font-size: 2rem;
+        }
+        
+        .section-description {
+            font-size: 1rem;
+        }
+        
+        .tabs {
+            flex-direction: column;
+            border-bottom: none;
+        }
+        
+        .tab-button {
+            width: 100%;
+            margin: 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tab-button.active {
+            border-color: var(--accent-color);
+            border-width: 1px;
+            background-color: rgba(74, 108, 247, 0.05);
+        }
+        
+        .batch-container,
+        .single-container {
+            padding: 1.5rem;
+        }
+        
+        .extraction-fields label {
+            font-size: 0.95rem;
+        }
+        
+        .field-input {
+            padding: 0.65rem;
+        }
+        
+        .field-help {
+            font-size: 0.8rem;
+        }
+        
+        .field-examples-label {
+            font-size: 0.8rem;
+        }
+        
+        .field-tag {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.4rem;
+            margin-right: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+        
+        .file-name {
+            max-width: 200px;
+        }
+        
+        .extract-actions {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .primary-button,
+        .control-button {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %} 
