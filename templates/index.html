@@ -1,22 +1,112 @@
 {% extends "base.html" %}
 
-{% block title %}Invert PDF Colors Online for Free | PDFinverter{% endblock %}
-{% block ogtitle %}Invert PDF Colors Online - Dark to Light PDF Converter{% endblock %}
-{% block ogdescription %}Easily invert PDF colors online for free. Convert dark PDFs to light for better readability and reduced ink usage. Fast, secure, and no signup required.{% endblock %}
-{% block description %}Free online PDF color inverter tool. Convert dark PDFs to light mode for better readability, reduced eye strain, and lower ink consumption when printing. No registration required.{% endblock %}
-{% block twtitle %}Invert PDF Colors Online - Free PDF Color Converter{% endblock %}
-{% block twdescription %}Transform dark PDFs to light mode instantly. Improve readability and save ink when printing. Free online tool, no signup needed.{% endblock %}
+{% block title %}Free PDF Tools Online | PDFInverter{% endblock %}
+{% block ogtitle %}Free PDF Tools Online - PDFInverter{% endblock %}
+{% block ogdescription %}Free online PDF tools to convert, edit, and optimize your documents. No registration required.{% endblock %}
+{% block description %}Free online PDF tools including color inverter, redaction, merger, and data extraction. No registration required.{% endblock %}
+{% block twtitle %}Free PDF Tools Online - PDFInverter{% endblock %}
+{% block twdescription %}Transform your PDFs with our free online tools. No registration required.{% endblock %}
 {% block canonical %}{% endblock %}
 
 {% block content %}
 <section class="hero" aria-label="Main banner">
     <div class="hero-content">
-        <h1>Transform Your PDFs for Better Reading</h1>
-        <p class="hero-description">Convert dark PDFs to light, making them easier to read and more printer-friendly.</p>
-        <div class="cta-container">
-            <a href="/convert" class="cta-button">Start Converting</a>
-            <a href="#features" class="secondary-button">Learn More</a>
+        <div class="badge">Free Online Tools</div>
+        <h1>Simple tools for free</h1>
+        <p class="hero-description">Discover our collection of privacy-focused utilities to boost your productivity</p>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search tools..." aria-label="Search tools">
+            <span class="search-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
         </div>
+    </div>
+</section>
+
+<section class="tools-overview">
+    <div class="tools-grid">
+        <a href="/convert" class="tool-card">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 16V4M7 4L3 8M7 4L11 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17 8V20M17 20L21 16M17 20L13 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h3>PDF Color Inverter</h3>
+            <p>Convert dark PDFs to light mode for better readability and reduced ink usage.</p>
+            <div class="tool-link">Try now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg></div>
+        </a>
+        
+        <a href="/redact-pdf" class="tool-card">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 15L15 9M15 15L9 9M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h3>PDF Redaction</h3>
+            <p>Securely redact sensitive information from your PDFs with ease.</p>
+            <div class="tool-link">Try now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg></div>
+        </a>
+        
+        <a href="/merge-pdf" class="tool-card">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 16H6C4.89543 16 4 15.1046 4 14V6C4 4.89543 4.89543 4 6 4H14C15.1046 4 16 4.89543 16 6V8M10 20H18C19.1046 20 20 19.1046 20 18V10C20 8.89543 19.1046 8 18 8H10C8.89543 8 8 8.89543 8 10V18C8 19.1046 8.89543 20 10 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h3>PDF Merger</h3>
+            <p>Combine multiple PDF files into a single document quickly.</p>
+            <div class="tool-link">Try now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg></div>
+        </a>
+        
+        <a href="/extract-data" class="tool-card">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M9 14L11 16L15 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h3>Data Extractor</h3>
+            <p>Extract text and data from PDF documents with high accuracy.</p>
+            <div class="tool-link">Try now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg></div>
+        </a>
+        
+        <a href="/edit-pages" class="tool-card">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 7L18 8M19 7L20 8M19 7V4M3 15V16C3 17.6569 4.34315 19 6 19H8M3 15C3 16.6569 4.34315 18 6 18H8M3 15V8C3 6.34315 4.34315 5 6 5H16M8 18V21M8 18H12M16 5H19M16 5V8M12 18H16M12 18V21M16 18V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h3>Remove Pages</h3>
+            <p>Delete specific pages from your PDF documents easily.</p>
+            <div class="tool-link">Try now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg></div>
+        </a>
+        
+        <a href="/customize-colors" class="tool-card">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 18V15M7 15H17M7 21H17C19.2091 21 21 19.2091 21 17V7C21 4.79086 19.2091 3 17 3H7C4.79086 3 3 4.79086 3 7V17C3 19.2091 4.79086 21 7 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h3>Dark Mode</h3>
+            <p>Customize PDF colors for better viewing in dark environments.</p>
+            <div class="tool-link">Try now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg></div>
+        </a>
     </div>
 </section>
 
@@ -52,40 +142,18 @@
         <div class="step">
             <div class="step-number" aria-hidden="true">1</div>
             <h3>Upload</h3>
-            <p>Upload your dark-themed PDF document</p>
+            <p>Upload your PDF document to our secure server</p>
         </div>
         <div class="step">
             <div class="step-number" aria-hidden="true">2</div>
             <h3>Process</h3>
-            <p>Our system automatically inverts the colors</p>
+            <p>Our system automatically processes your document</p>
         </div>
         <div class="step">
             <div class="step-number" aria-hidden="true">3</div>
             <h3>Download</h3>
-            <p>Get your light-themed PDF instantly</p>
+            <p>Get your processed PDF instantly</p>
         </div>
-    </div>
-</section>
-
-<section class="tools-overview">
-    <h2>Our PDF Tools</h2>
-    <div class="tools-grid">
-        <a href="/convert" class="tool-card">
-            <h3>Color Inverter</h3>
-            <p>Convert dark PDFs to light mode for better readability</p>
-        </a>
-        <a href="/redact-pdf" class="tool-card">
-            <h3>PDF Redaction</h3>
-            <p>Securely redact sensitive information from your PDFs</p>
-        </a>
-        <a href="/merge-pdf" class="tool-card">
-            <h3>PDF Merger</h3>
-            <p>Combine multiple PDF files into a single document</p>
-        </a>
-        <a href="/extract-data" class="tool-card">
-            <h3>Data Extractor</h3>
-            <p>Extract text and data from PDF documents</p>
-        </a>
     </div>
 </section>
 
@@ -95,44 +163,30 @@
         <div class="about-grid">
             <div class="about-card">
                 <h3>Our Mission</h3>
-                <p>We believe in making digital reading comfortable and accessible for everyone. Our PDF color inverter tool was created to address the common problem of eye strain from reading dark-themed documents.</p>
+                <p>We believe in making digital reading comfortable and accessible for everyone. Our PDF tools were created to address common problems with document handling and viewing.</p>
             </div>
             
             <div class="about-card">
-                <h3>Why It Matters</h3>
-                <p>Many technical documents, especially in programming and cybersecurity, come with dark themes. While these look great on screens, they can be:</p>
+                <h3>Privacy First</h3>
+                <p>Your privacy matters to us:</p>
                 <ul>
-                    <li>Difficult to read in bright environments</li>
-                    <li>Challenging to print due to high ink consumption</li>
-                    <li>Straining on the eyes during extended reading sessions</li>
+                    <li>No registration required</li>
+                    <li>Files are automatically deleted after processing</li>
+                    <li>We don't store or analyze your document content</li>
                 </ul>
             </div>
 
             <div class="about-card">
                 <h3>Our Technology</h3>
-                <p>PDFInverter uses advanced image processing algorithms to intelligently convert dark-themed PDFs to light versions while maintaining perfect readability and document structure.</p>
+                <p>PDFInverter uses advanced processing algorithms to intelligently handle PDF documents while maintaining perfect readability and document structure.</p>
             </div>
-        </div>
-    </div>
-</section>
-
-<section class="testimonials">
-    <h2>What Our Users Say</h2>
-    <div class="testimonial-grid">
-        <div class="testimonial-card">
-            <p>"PDFInverter saved me so much ink when printing programming documentation. The converted PDFs are perfectly readable!"</p>
-            <p class="testimonial-author">— Sarah T., Software Developer</p>
-        </div>
-        <div class="testimonial-card">
-            <p>"I can finally read my technical PDFs without eye strain. This tool is a game-changer for anyone who reads a lot of documentation."</p>
-            <p class="testimonial-author">— Michael K., IT Professional</p>
         </div>
     </div>
 </section>
 
 <section class="cta-section">
     <h2>Ready to Transform Your PDFs?</h2>
-    <p>Start converting your dark PDFs to light mode today - it's free, fast, and secure.</p>
+    <p>Start using our free PDF tools today - no registration required.</p>
     <a href="/convert" class="cta-button">Get Started Now</a>
 </section>
 {% endblock %}

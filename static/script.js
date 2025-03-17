@@ -25,6 +25,68 @@ document.addEventListener('DOMContentLoaded', function() {
     lazyImages.forEach(img => lazyLoadObserver.observe(img));
     lazyLoadElements.forEach(el => lazyLoadObserver.observe(el));
     
+    // Handle file input changes
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    fileInputs.forEach(input => {
+        input.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'No file selected';
+            const fileNameElement = input.closest('.file-upload-container')?.querySelector('.file-name');
+            
+            if (fileNameElement) {
+                fileNameElement.textContent = fileName;
+                if (e.target.files.length > 0) {
+                    fileNameElement.classList.add('selected');
+                } else {
+                    fileNameElement.classList.remove('selected');
+                }
+            }
+        });
+    });
+    
+    // Handle file upload drag and drop
+    const fileUploadContainers = document.querySelectorAll('.file-upload-container');
+    fileUploadContainers.forEach(container => {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            container.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            container.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            container.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            container.classList.add('dragover');
+        }
+        
+        function unhighlight() {
+            container.classList.remove('dragover');
+        }
+        
+        container.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            const fileInput = container.querySelector('input[type="file"]');
+            
+            if (fileInput) {
+                fileInput.files = files;
+                // Trigger change event
+                const event = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(event);
+            }
+        }
+    });
+    
     // Handle form submissions with validation
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
@@ -55,6 +117,49 @@ document.addEventListener('DOMContentLoaded', function() {
             link.setAttribute('aria-current', 'page');
         }
     });
+    
+    // Handle search functionality
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const toolCards = document.querySelectorAll('.tool-card');
+            
+            toolCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Show message if no results
+            const toolsGrid = document.querySelector('.tools-grid');
+            let visibleCards = 0;
+            
+            toolCards.forEach(card => {
+                if (card.style.display !== 'none') {
+                    visibleCards++;
+                }
+            });
+            
+            const noResultsMessage = document.querySelector('.no-results-message');
+            
+            if (visibleCards === 0 && searchTerm !== '') {
+                if (!noResultsMessage) {
+                    const message = document.createElement('div');
+                    message.className = 'no-results-message';
+                    message.textContent = 'No tools found matching your search.';
+                    toolsGrid.appendChild(message);
+                }
+            } else if (noResultsMessage) {
+                noResultsMessage.remove();
+            }
+        });
+    }
 });
 
 // Improve page load performance
@@ -81,49 +186,22 @@ window.addEventListener('load', function() {
     }
 });
 
-// Handle file uploads with drag and drop
-document.addEventListener('DOMContentLoaded', function() {
-    const dropAreas = document.querySelectorAll('.file-upload-area, .upload-prompt');
-    
-    dropAreas.forEach(area => {
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            area.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            area.addEventListener(eventName, highlight, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            area.addEventListener(eventName, unhighlight, false);
-        });
-        
-        function highlight() {
-            area.classList.add('dragover');
-        }
-        
-        function unhighlight() {
-            area.classList.remove('dragover');
-        }
-        
-        area.addEventListener('drop', handleDrop, false);
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            const fileInput = area.querySelector('input[type="file"]');
-            
-            if (fileInput) {
-                fileInput.files = files;
-                // Trigger change event
-                const event = new Event('change', { bubbles: true });
-                fileInput.dispatchEvent(event);
-            }
-        }
-    });
-}); 
+// Add spinner styles
+const style = document.createElement('style');
+style.textContent = `
+.spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+`;
+document.head.appendChild(style); 

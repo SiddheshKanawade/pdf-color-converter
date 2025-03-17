@@ -6,21 +6,39 @@
 {% block canonical %}redact-pdf{% endblock %}
 
 {% block content %}
-<section class="redact-section">
-    <div class="container">
-        <div class="section-header">
-            <h1>Redact Your PDF</h1>
-            <p class="section-description">Draw rectangles over sensitive information to permanently remove it from your document.</p>
+<section class="hero" aria-label="Main banner">
+    <div class="hero-content">
+        <h1>Redact Your PDF</h1>
+        <p class="hero-description">Draw rectangles over sensitive information to permanently remove it from your document.</p>
+    </div>
+</section>
+
+<section class="tool-section">
+    <div class="tool-container">
+        <div class="tool-header">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 3H21V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 3L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>PDF Redaction Tool</h2>
         </div>
+        <p class="tool-description">Upload your PDF and draw rectangles over sensitive information to permanently remove it from your document.</p>
         
         <div class="redact-container">
             <div id="upload-section">
-                <div class="file-upload-area">
-                    <div class="upload-prompt" id="drop-area">
-                        <div class="upload-icon">📄</div>
-                        <p>Drag and drop your PDF here, or click to select</p>
-                        <input type="file" id="file-input" accept=".pdf" class="hidden">
-                    </div>
+                <div class="file-upload-container" id="drop-area">
+                    <label for="file-input" class="file-upload-label">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15V3M12 3L8 7M12 3L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 13V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Drag and drop your PDF here, or click to select</span>
+                    </label>
+                    <input type="file" id="file-input" accept=".pdf" class="file-upload-input">
+                    <p class="file-name">No file selected</p>
                 </div>
             </div>
             
@@ -36,7 +54,7 @@
                         <button id="next-page" class="nav-button">Next</button>
                     </div>
                     <div class="action-group">
-                        <button id="apply-redactions" class="primary-button">Apply Redactions & Download</button>
+                        <button id="apply-redactions" class="cta-button">Apply Redactions & Download</button>
                     </div>
                 </div>
                 

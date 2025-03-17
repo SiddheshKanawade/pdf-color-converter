@@ -20,6 +20,7 @@
     <title>{% block title %}PDF Color Inverter{% endblock %} | PDFInverter</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
@@ -65,16 +66,23 @@
     <header>
         <nav class="navbar">
             <div class="nav-content">
-                <a href="/" class="logo">PDFInverter</a>
+                <a href="/" class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    PDFInverter
+                </a>
                 <div class="nav-links">
-                    <a href="/" {% if request.path == '/' %}aria-current="page"{% endif %}>Home</a>
                     <a href="/convert" {% if request.path == '/convert' %}aria-current="page"{% endif %}>Convert PDF</a>
                     <a href="/redact-pdf" {% if request.path == '/redact-pdf' %}aria-current="page"{% endif %}>Redact PDF</a>
                     <a href="/merge-pdf" {% if request.path == '/merge-pdf' %}aria-current="page"{% endif %}>Merge PDFs</a>
-                    <a href="/customize-colors" {% if request.path == '/customize-colors' %}aria-current="page"{% endif %}>Dark Mode</a>
                     <a href="/extract-data" {% if request.path == '/extract-data' %}aria-current="page"{% endif %}>Extract Data</a>
-                    <a href="/blog" {% if request.path == '/blog' %}aria-current="page"{% endif %}>Blog</a>
-                    <a href="/#about">About</a>
+                    <div class="nav-buttons">
+                        <a href="/blog" class="nav-button secondary">Blog</a>
+                        <a href="mailto:team@pdfinverter.com" class="nav-button">Support</a>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -101,9 +109,12 @@
                 </div>
             </div>
             <div class="footer-section">
-                <h3>Contact</h3>
-                <p>Questions? Reach out to us</p>
-                <a href="mailto:team@pdfinverter.com" class="contact-button">team@pdfinverter.com</a>
+                <h3>Tools</h3>
+                <div class="footer-links">
+                    <a href="/redact-pdf" class="footer-link">Redact PDF</a>
+                    <a href="/merge-pdf" class="footer-link">Merge PDFs</a>
+                    <a href="/customize-colors" class="footer-link">Dark Mode</a>
+                </div>
             </div>
             <div class="footer-section">
                 <h3>Resources</h3>
