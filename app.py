@@ -296,6 +296,9 @@ def customize_pdf():
             # Get the text
             text_blocks = page.get_text("dict")["blocks"]
             
+            # Define a list of fallback fonts that should be available in PyMuPDF
+            fallback_fonts = ["helvetica", "times-roman", "courier"]
+            
             # Draw text in the specified color
             for block in text_blocks:
                 if "lines" in block:
@@ -305,16 +308,40 @@ def customize_pdf():
                             text = span["text"]
                             origin = fitz.Point(span["origin"])
                             font_size = span["size"]
-                            font_name = span["font"]
                             
-                            # Draw text with new color
-                            page.insert_text(
-                                origin,
-                                text,
-                                fontsize=font_size,
-                                fontname=font_name,
-                                color=text_rgb
-                            )
+                            # Try to use a fallback font instead of the original
+                            # This avoids the "need font file or buffer" error
+                            try:
+                                # First try with helvetica as a safe default
+                                page.insert_text(
+                                    origin,
+                                    text,
+                                    fontsize=font_size,
+                                    fontname="helvetica",
+                                    color=text_rgb
+                                )
+                            except Exception as font_error:
+                                # If that fails, try other fallback fonts
+                                success = False
+                                for font in fallback_fonts:
+                                    if font == "helvetica":  # Already tried
+                                        continue
+                                    try:
+                                        page.insert_text(
+                                            origin,
+                                            text,
+                                            fontsize=font_size,
+                                            fontname=font,
+                                            color=text_rgb
+                                        )
+                                        success = True
+                                        break
+                                    except:
+                                        continue
+                                
+                                # If all fallbacks fail, log the error but continue processing
+                                if not success:
+                                    print(f"Could not render text: {text}")
         
         # Save the modified PDF
         print("Saving the modified PDF")
