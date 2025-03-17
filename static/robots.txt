@@ -2,7 +2,15 @@ User-agent: *
 Allow: /
 Sitemap: https://www.pdfinverter.com/sitemap.xml
 
+# Disallow processing routes
 Disallow: /upload
 Disallow: /download
 Disallow: /upload-for-redaction
-Disallow: /apply-redactions 
+Disallow: /apply-redactions
+Disallow: /merge-pdfs
+Disallow: /customize-pdf
+Disallow: /extract-batch
+Disallow: /extract-single
+
+# Crawl delay for better server performance
+Crawl-delay: 5 

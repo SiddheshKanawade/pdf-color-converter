@@ -6,14 +6,39 @@
 {% block canonical %}convert{% endblock %}
 
 {% block content %}
-<section class="convert-section">
-    <h1>Convert Your PDF</h1>
-    <p class="description">Transform dark PDFs into light, eye-friendly documents. Perfect for reading in bright environments or saving printer ink.</p>
-    <div class="converter-container">
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <label for="file">Select your PDF file</label>
-            <input type="file" name="file" id="file" accept=".pdf" required>
-            <button type="submit">Convert PDF</button>
+<section class="hero" aria-label="Main banner">
+    <div class="hero-content">
+        <h1>Convert Your PDF</h1>
+        <p class="hero-description">Transform dark PDFs into light, eye-friendly documents. Perfect for reading in bright environments or saving printer ink.</p>
+    </div>
+</section>
+
+<section class="tool-section">
+    <div class="tool-container">
+        <div class="tool-header">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 16V4M7 4L3 8M7 4L11 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17 8V20M17 20L21 16M17 20L13 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>PDF Color Inverter</h2>
+        </div>
+        <p class="tool-description">Upload your PDF to convert dark colors to light, making it easier to read and more printer-friendly.</p>
+        
+        <form action="/upload" method="post" enctype="multipart/form-data" class="tool-form">
+            <div class="file-upload-container">
+                <label for="file" class="file-upload-label">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 15V3M12 3L8 7M12 3L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 13V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Select your PDF file</span>
+                </label>
+                <input type="file" name="file" id="file" accept=".pdf" required class="file-upload-input">
+                <p class="file-name">No file selected</p>
+            </div>
+            <button type="submit" class="cta-button">Convert PDF</button>
         </form>
     </div>
 </section>

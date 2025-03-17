@@ -9,6 +9,7 @@
 <section class="customize-section">
     <div class="container">
         <div class="section-header">
+            <div class="badge">PDF Color Customizer</div>
             <h1>Customize PDF Colors</h1>
             <p class="section-description">Transform your PDFs with custom background and text colors. Create eye-friendly dark mode PDFs for comfortable reading.</p>
         </div>
@@ -16,9 +17,15 @@
         <div class="customize-container">
             <div id="upload-section">
                 <div class="file-upload-area">
-                    <div class="upload-prompt" id="drop-area">
-                        <div class="upload-icon">📄</div>
-                        <p>Drag and drop your PDF here, or click to select</p>
+                    <div class="upload-prompt" id="drop-area" style="border: 2px dashed #ccc; border-radius: 8px; padding: 60px 20px; text-align: center; background-color: #fafafa; margin: 20px 0; cursor: pointer;">
+                        <div class="tool-icon" style="margin: 0 auto 20px; display: flex; justify-content: center;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #6366f1;">
+                                <path d="M12 15V3M12 3L8 7M12 3L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M4 13V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 12px; color: #333;">Upload PDF Document</h3>
+                        <p style="color: #666; margin-bottom: 0;">Drag and drop PDF files here, or click to select</p>
                         <input type="file" id="file-input" accept=".pdf" class="hidden">
                     </div>
                 </div>
@@ -53,17 +60,17 @@
                 <div class="preset-colors">
                     <h3>Preset Color Schemes</h3>
                     <div class="preset-buttons">
-                        <button class="preset-button" data-bg="#1a1a1a" data-text="#ffffff">Dark Mode</button>
-                        <button class="preset-button" data-bg="#0a2c38" data-text="#e0f7fa">Night Blue</button>
-                        <button class="preset-button" data-bg="#2d1b2e" data-text="#e6c0e9">Purple Night</button>
-                        <button class="preset-button" data-bg="#1e2a38" data-text="#c5d1eb">Midnight</button>
-                        <button class="preset-button" data-bg="#2a2a2a" data-text="#c8e6c9">Matrix</button>
+                        <button class="secondary-button preset-button" data-bg="#1a1a1a" data-text="#ffffff">Dark Mode</button>
+                        <button class="secondary-button preset-button" data-bg="#0a2c38" data-text="#e0f7fa">Night Blue</button>
+                        <button class="secondary-button preset-button" data-bg="#2d1b2e" data-text="#e6c0e9">Purple Night</button>
+                        <button class="secondary-button preset-button" data-bg="#1e2a38" data-text="#c5d1eb">Midnight</button>
+                        <button class="secondary-button preset-button" data-bg="#2a2a2a" data-text="#c8e6c9">Matrix</button>
                     </div>
                 </div>
                 
                 <div class="action-buttons">
-                    <button id="process-button" class="primary-button">Apply Colors & Download</button>
-                    <button id="cancel-button" class="control-button">Cancel</button>
+                    <button id="process-button" class="cta-button">Apply Colors & Download</button>
+                    <button id="cancel-button" class="secondary-button">Cancel</button>
                 </div>
                 
                 <div id="loading-indicator" class="loading-indicator hidden">

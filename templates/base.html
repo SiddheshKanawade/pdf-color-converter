@@ -4,17 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{% block description %}Free online tool to convert dark PDFs to light versions. Make your PDFs easier to read and save printer ink.{% endblock %}">
-    <meta name="keywords" content="PDF converter, dark to light PDF, PDF color inverter, eye-friendly PDF, printer-friendly PDF">
+    <meta name="keywords" content="PDF converter, dark to light PDF, PDF color inverter, eye-friendly PDF, printer-friendly PDF, PDF editor, PDF tools">
     <meta name="author" content="PDFInverter">
     <meta property="og:title" content="{% block ogtitle %}PDFInverter - Convert Dark PDFs to Light{% endblock %}">
     <meta property="og:description" content="{% block ogdescription %}Transform dark PDFs into light, eye-friendly documents. Perfect for reading and printing.{% endblock %}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.url }}">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="{{ url_for('static', filename='images/og-image.jpg', _external=True) }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twtitle %}PDFInverter - Convert Dark PDFs to Light{% endblock %}">
+    <meta name="twitter:description" content="{% block twdescription %}Transform dark PDFs into light, eye-friendly documents. Perfect for reading and printing.{% endblock %}">
+    <meta name="twitter:image" content="{{ url_for('static', filename='images/twitter-card.jpg', _external=True) }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ request.url_root }}{% block canonical %}{% endblock %}">
     <title>{% block title %}PDF Color Inverter{% endblock %} | PDFInverter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -27,26 +36,57 @@
             "@type": "Offer",
             "price": "0",
             "priceCurrency": "USD"
+        },
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
+        "creator": {
+            "@type": "Organization",
+            "name": "PDFInverter",
+            "url": "{{ request.url_root }}"
         }
+    }
+    </script>
+    <!-- Breadcrumb structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "{{ request.url_root }}"
+            }{% block breadcrumbs %}{% endblock %}
+        ]
     }
     </script>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <a href="/" class="logo">PDFInverter</a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/convert">Convert PDF</a>
-                <a href="/redact-pdf">Redact PDF</a>
-                <a href="/merge-pdf">Merge PDFs</a>
-                <a href="/customize-colors">Dark Mode</a>
-                <a href="/extract-data">Extract Data</a>
-                <a href="/blog">Blog</a>
-                <a href="/#about">About</a>
+    <header>
+        <nav class="navbar">
+            <div class="nav-content">
+                <a href="/" class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    PDFInverter
+                </a>
+                <div class="nav-links">
+                    <a href="/convert" {% if request.path == '/convert' %}aria-current="page"{% endif %}>Convert PDF</a>
+                    <a href="/redact-pdf" {% if request.path == '/redact-pdf' %}aria-current="page"{% endif %}>Redact PDF</a>
+                    <a href="/merge-pdf" {% if request.path == '/merge-pdf' %}aria-current="page"{% endif %}>Merge PDFs</a>
+                    <a href="/extract-data" {% if request.path == '/extract-data' %}aria-current="page"{% endif %}>Extract Data</a>
+                    <div class="nav-buttons">
+                        <a href="/blog" class="nav-button secondary">Blog</a>
+                        <a href="mailto:team@pdfinverter.com" class="nav-button">Support</a>
+                    </div>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <main>
         {% block content %}{% endblock %}
@@ -69,9 +109,12 @@
                 </div>
             </div>
             <div class="footer-section">
-                <h3>Contact</h3>
-                <p>Questions? Reach out to us</p>
-                <a href="mailto:team@pdfinverter.com" class="contact-button">team@pdfinverter.com</a>
+                <h3>Tools</h3>
+                <div class="footer-links">
+                    <a href="/redact-pdf" class="footer-link">Redact PDF</a>
+                    <a href="/merge-pdf" class="footer-link">Merge PDFs</a>
+                    <a href="/customize-colors" class="footer-link">Dark Mode</a>
+                </div>
             </div>
             <div class="footer-section">
                 <h3>Resources</h3>

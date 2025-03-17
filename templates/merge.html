@@ -6,40 +6,80 @@
 {% block canonical %}merge-pdf{% endblock %}
 
 {% block content %}
-<section class="merge-section">
-    <div class="container">
-        <div class="section-header">
-            <h1>Merge PDF Files</h1>
-            <p class="section-description">Upload multiple PDF files to combine them into a single document. Files will be merged in the order they are uploaded.</p>
+<section class="hero" aria-label="Main banner">
+    <div class="hero-content">
+        <h1>Merge PDF Files</h1>
+        <p class="hero-description">Upload multiple PDF files to combine them into a single document. Files will be merged in the order you choose.</p>
+    </div>
+</section>
+
+<section class="tool-section">
+    <div class="tool-container">
+        <div class="tool-header">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 16H6C4.89543 16 4 15.1046 4 14V6C4 4.89543 4.89543 4 6 4H14C15.1046 4 16 4.89543 16 6V8M10 20H18C19.1046 20 20 19.1046 20 18V10C20 8.89543 19.1046 8 18 8H10C8.89543 8 8 8.89543 8 10V18C8 19.1046 8.89543 20 10 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>PDF Merger Tool</h2>
         </div>
+        <p class="tool-description">Upload multiple PDF files and combine them into a single document. You can reorder files before merging by dragging them up or down.</p>
         
         <div class="merge-container">
-            <div class="file-upload-area">
-                <div class="upload-prompt" id="drop-area">
-                    <div class="upload-icon">📄</div>
-                    <p>Drag and drop PDF files here, or click to select</p>
-                    <input type="file" id="file-input" accept=".pdf" multiple class="hidden">
+            <div id="upload-section">
+                <div class="file-upload-container" id="drop-area">
+                    <label for="file-input" class="file-upload-label">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15V3M12 3L8 7M12 3L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 13V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Drag and drop PDF files here, or click to select</span>
+                        <input type="file" id="file-input" accept=".pdf" multiple class="file-upload-input">
+                    </label>
                 </div>
             </div>
             
-            <div class="file-list-container">
-                <h3>Files to merge</h3>
-                <p class="file-instruction">Files will be merged in the order shown below. Drag to reorder.</p>
-                <ul id="file-list" class="file-list"></ul>
+            <div id="file-list-section" class="hidden">
+                <div class="controls-bar">
+                    <div class="control-group">
+                        <button id="add-more-files" class="control-button">Add More Files</button>
+                        <button id="clear-files" class="control-button">Clear All</button>
+                    </div>
+                    <div class="action-group">
+                        <button id="merge-button" class="cta-button">Merge PDFs & Download</button>
+                    </div>
+                </div>
                 
-                <div class="merge-actions">
-                    <button id="merge-button" class="primary-button" disabled>Merge PDFs</button>
-                    <button id="clear-files" class="control-button" disabled>Clear All</button>
+                <div class="file-list-container">
+                    <h3>Files to merge</h3>
+                    <p class="file-instruction">Files will be merged in the order shown below. <strong>Drag files up or down to reorder them.</strong></p>
+                    <ul id="file-list" class="file-list"></ul>
                 </div>
-            </div>
-            
-            <div id="loading-indicator" class="loading-indicator hidden">
-                <div class="spinner"></div>
-                <p>Merging your PDFs...</p>
+                
+                <div id="loading-indicator" class="loading-indicator hidden">
+                    <div class="spinner"></div>
+                    <p>Merging your PDFs...</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Modal dialog for messages -->
+<div id="message-modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-title">Message</h3>
+            <button id="close-modal" class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="modal-message"></p>
+        </div>
+        <div class="modal-footer">
+            <button id="modal-ok-button" class="cta-button">OK</button>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
@@ -49,7 +89,15 @@
     const fileList = document.getElementById('file-list');
     const mergeButton = document.getElementById('merge-button');
     const clearButton = document.getElementById('clear-files');
+    const addMoreButton = document.getElementById('add-more-files');
     const loadingIndicator = document.getElementById('loading-indicator');
+    const uploadSection = document.getElementById('upload-section');
+    const fileListSection = document.getElementById('file-list-section');
+    const messageModal = document.getElementById('message-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const closeModal = document.getElementById('close-modal');
+    const modalOkButton = document.getElementById('modal-ok-button');
     
     // Variables
     let files = [];
@@ -58,6 +106,7 @@
     const sortable = new Sortable(fileList, {
         animation: 150,
         ghostClass: 'file-item-ghost',
+        handle: '.drag-handle',
         onEnd: function() {
             // Update files array to match the new order
             const newOrder = [];
@@ -73,7 +122,10 @@
     });
     
     // Event listeners
-    dropArea.addEventListener('click', () => fileInput.click());
+    dropArea.addEventListener('click', () => {
+        // This is intentionally empty as the click is handled by the label
+    });
+    
     fileInput.addEventListener('change', handleFileInput);
     
     dropArea.addEventListener('dragover', (e) => {
@@ -93,19 +145,53 @@
     
     mergeButton.addEventListener('click', mergePDFs);
     clearButton.addEventListener('click', clearFiles);
+    addMoreButton.addEventListener('click', () => {
+        // Reset the file input to allow selecting the same files again
+        fileInput.value = '';
+        fileInput.click();
+    });
+    
+    // Modal event listeners
+    closeModal.addEventListener('click', () => {
+        messageModal.classList.add('hidden');
+    });
+    
+    modalOkButton.addEventListener('click', () => {
+        messageModal.classList.add('hidden');
+    });
+    
+    // Show modal with message
+    function showModal(title, message) {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        messageModal.classList.remove('hidden');
+    }
     
     // Handle file input
     function handleFileInput(e) {
-        handleFiles(e.target.files);
+        if (e.target.files.length > 0) {
+            handleFiles(e.target.files);
+        }
     }
     
     function handleFiles(fileList) {
+        let hasAddedFiles = false;
+        
         for (let i = 0; i < fileList.length; i++) {
             const file = fileList[i];
             if (file.type === 'application/pdf') {
                 addFile(file);
+                hasAddedFiles = true;
             } else {
-                alert(`${file.name} is not a PDF file.`);
+                showModal("Invalid File", `${file.name} is not a PDF file.`);
+            }
+        }
+        
+        if (hasAddedFiles) {
+            // Show file list section if it's hidden
+            if (uploadSection.classList.contains('hidden') === false) {
+                uploadSection.classList.add('hidden');
+                fileListSection.classList.remove('hidden');
             }
         }
         
@@ -121,6 +207,15 @@
         const item = document.createElement('li');
         item.className = 'file-item';
         item.dataset.index = fileIndex;
+        
+        // Drag handle
+        const dragHandle = document.createElement('div');
+        dragHandle.className = 'drag-handle';
+        dragHandle.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 9H16M8 15H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        `;
         
         // File info
         const fileInfo = document.createElement('div');
@@ -141,9 +236,14 @@
         const removeBtn = document.createElement('button');
         removeBtn.className = 'remove-file';
         removeBtn.innerHTML = '&times;';
-        removeBtn.addEventListener('click', () => removeFile(item, fileIndex));
+        removeBtn.title = 'Remove file';
+        removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeFile(item, fileIndex);
+        });
         
         // Assemble item
+        item.appendChild(dragHandle);
         item.appendChild(fileInfo);
         item.appendChild(removeBtn);
         fileList.appendChild(item);
@@ -161,6 +261,12 @@
         
         // Update buttons
         updateButtons();
+        
+        // If no files left, show upload section again
+        if (files.length === 0) {
+            fileListSection.classList.add('hidden');
+            uploadSection.classList.remove('hidden');
+        }
     }
     
     function updateFileIndices() {
@@ -178,6 +284,10 @@
         fileList.innerHTML = '';
         files = [];
         updateButtons();
+        
+        // Show upload section again
+        fileListSection.classList.add('hidden');
+        uploadSection.classList.remove('hidden');
     }
     
     function formatFileSize(bytes) {
@@ -192,7 +302,7 @@
     
     async function mergePDFs() {
         if (files.length < 2) {
-            alert('Please add at least two PDF files to merge.');
+            showModal("Error", "Please add at least two PDF files to merge.");
             return;
         }
         
@@ -201,6 +311,9 @@
         
         // Create FormData
         const formData = new FormData();
+        
+        // Important: Use the correct format for the server
+        // The server expects 'files[]' not 'files[0]', 'files[1]', etc.
         files.forEach(file => {
             formData.append('files[]', file);
         });
@@ -223,13 +336,179 @@
                 // Clear the file list
                 clearFiles();
             } else {
-                alert(data.error || 'Merging failed');
+                showModal("Error", data.error || "Merging failed. Please try again.");
             }
         } catch (error) {
             console.error('Error merging PDFs:', error);
-            alert('Error merging PDFs');
             loadingIndicator.classList.add('hidden');
+            showModal("Error", "An error occurred while merging PDFs. Please try again.");
         }
     }
 </script>
+
+<style>
+/* Additional styles for the merge page */
+.drag-handle {
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    color: var(--secondary-color);
+}
+
+.drag-handle:hover {
+    color: var(--accent-color);
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: white;
+    transition: background-color 0.2s ease;
+}
+
+.file-item:hover {
+    background-color: #f8f9fa;
+}
+
+.file-item-ghost {
+    opacity: 0.6;
+    background-color: #f0f0f0;
+    border: 1px dashed var(--accent-color);
+}
+
+.file-info {
+    flex: 1;
+    margin: 0 10px;
+    overflow: hidden;
+}
+
+.file-name {
+    display: block;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-size {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--secondary-color);
+}
+
+.remove-file {
+    background: none;
+    border: none;
+    color: var(--error-color);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.remove-file:hover {
+    background-color: rgba(255, 118, 117, 0.1);
+}
+
+.cta-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cta-button:hover:not(:disabled) {
+    background-color: var(--hover-color);
+    transform: translateY(-2px);
+}
+
+.cta-button:disabled {
+    background-color: #d1d1d1;
+    cursor: not-allowed;
+}
+
+/* Fix for file input */
+.file-upload-input {
+    position: absolute;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--primary-color);
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--secondary-color);
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+}
+</style>
 {% endblock %} 

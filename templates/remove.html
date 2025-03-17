@@ -1,26 +1,263 @@
 {% extends "base.html" %}
 
-{% block title %}Convert PDF - Make PDFs Eye-Friendly{% endblock %}
-{% block ogtitle %}Convert Dark PDFs to Light - Free Online Tool{% endblock %}
-{% block ogdescription %}Transform dark-themed PDFs into light, eye-friendly documents. Ideal for reading in bright environments and saving printer ink.{% endblock %}
-{% block canonical %}convert{% endblock %}
+{% block title %}Remove PDF Pages - Delete Specific Pages{% endblock %}
+{% block ogtitle %}Remove PDF Pages - Delete Specific Pages{% endblock %}
+{% block ogdescription %}Easily remove specific pages from your PDF documents. Keep only the pages you need with our free online tool.{% endblock %}
+{% block canonical %}edit-pages{% endblock %}
 
 {% block content %}
-<section class="convert-section">
-    <h1>Convert Your PDF</h1>
-    <p class="description">Remove specific pages from your PDF. Keep only what you need.</p>
-    <div class="converter-container">
-        <form action="/remove" method="post" enctype="multipart/form-data">
-            <label for="file">Select your PDF file</label>
-            <input type="file" name="file" id="file" accept=".pdf" required>
-            <div class="pages-remove">
-                <label for="pages">Pages to remove</label>
-                <input type="text" name="pages" id="pages" placeholder="e.g., 1,3,5-7">
-            </div>
-            
-            
-            <button type="submit">Remove Pages</button>
-        </form>
+<section class="hero" aria-label="Main banner">
+    <div class="hero-content">
+        <h1>Remove PDF Pages</h1>
+        <p class="hero-description">Delete specific pages from your PDF document. Keep only what you need.</p>
     </div>
 </section>
+
+<section class="tool-section">
+    <div class="tool-container">
+        <div class="tool-header">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 7L18 8M19 7L20 8M19 7V4M3 15V16C3 17.6569 4.34315 19 6 19H8M3 15C3 16.6569 4.34315 18 6 18H8M3 15V8C3 6.34315 4.34315 5 6 5H16M8 18V21M8 18H12M16 5H19M16 5V8M12 18H16M12 18V21M16 18V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>Page Removal Tool</h2>
+        </div>
+        <p class="tool-description">Upload your PDF and specify which pages you want to remove. You can remove individual pages or page ranges.</p>
+        
+        <div class="file-upload-container" id="upload-container">
+            <form action="/remove" method="post" enctype="multipart/form-data" class="tool-form">
+                <div class="form-group">
+                    <label for="file" class="file-upload-label">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15V3M12 3L8 7M12 3L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 13V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Select your PDF file or drag and drop here</span>
+                        <input type="file" name="file" id="file" accept=".pdf" required class="file-upload-input">
+                    </label>
+                    <p class="file-name" id="file-name">No file selected</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pages" class="input-label">Pages to remove</label>
+                    <div class="input-with-help">
+                        <input type="text" name="pages" id="pages" placeholder="e.g., 1,3,5-7" class="text-input">
+                        <div class="help-tooltip">
+                            <span class="help-icon">?</span>
+                            <div class="tooltip-content">
+                                <p>Specify pages to remove using:</p>
+                                <ul>
+                                    <li>Individual pages: 1,3,7</li>
+                                    <li>Page ranges: 5-9</li>
+                                    <li>Combinations: 1,3,5-9,15</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="input-help">Separate individual pages with commas. Use hyphens for page ranges.</p>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="cta-button">Remove Pages & Download</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <h2>How to Remove PDF Pages</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <h3>Upload</h3>
+            <p>Upload your PDF document to our secure server</p>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <h3>Select Pages</h3>
+            <p>Specify which pages you want to remove from the document</p>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <h3>Download</h3>
+            <p>Get your processed PDF with the specified pages removed</p>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Display selected filename
+    const fileInput = document.getElementById('file');
+    const fileNameDisplay = document.getElementById('file-name');
+    
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            fileNameDisplay.textContent = this.files[0].name;
+            fileNameDisplay.classList.add('selected');
+        } else {
+            fileNameDisplay.textContent = 'No file selected';
+            fileNameDisplay.classList.remove('selected');
+        }
+    });
+    
+    // Drag and drop functionality
+    const uploadContainer = document.getElementById('upload-container');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadContainer.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadContainer.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadContainer.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        uploadContainer.classList.add('dragover');
+    }
+    
+    function unhighlight() {
+        uploadContainer.classList.remove('dragover');
+    }
+    
+    uploadContainer.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files && files.length) {
+            fileInput.files = files;
+            
+            // Trigger change event
+            const event = new Event('change');
+            fileInput.dispatchEvent(event);
+        }
+    }
+</script>
+
+<style>
+    /* Additional styles specific to the remove page */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .input-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+    
+    .text-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+    }
+    
+    .text-input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.1);
+    }
+    
+    .input-help {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+    }
+    
+    .form-actions {
+        margin-top: 2rem;
+    }
+    
+    .input-with-help {
+        display: flex;
+        align-items: center;
+    }
+    
+    .help-tooltip {
+        position: relative;
+        margin-left: 0.5rem;
+    }
+    
+    .help-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: var(--secondary-color);
+        color: white;
+        font-size: 0.75rem;
+        cursor: pointer;
+    }
+    
+    .tooltip-content {
+        position: absolute;
+        top: calc(100% + 5px);
+        right: 0;
+        width: 250px;
+        padding: 1rem;
+        background-color: white;
+        border-radius: 4px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    
+    .help-tooltip:hover .tooltip-content {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .tooltip-content p {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    
+    .tooltip-content ul {
+        margin: 0;
+        padding-left: 1.25rem;
+    }
+    
+    .tooltip-content li {
+        margin-bottom: 0.25rem;
+        font-size: 0.85rem;
+    }
+    
+    @media (max-width: 768px) {
+        .input-with-help {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .help-tooltip {
+            margin-left: 0;
+            margin-top: 0.5rem;
+        }
+        
+        .tooltip-content {
+            left: 0;
+            right: auto;
+        }
+    }
+</style>
 {% endblock %}
