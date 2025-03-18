@@ -12,9 +12,8 @@
     ],
     "functions": {
         "api/*": {
-            "maxDuration": 10,
-            "memory": 512,
-            "maxSize": "10mb"
+            "maxDuration": 30,
+            "memory": 512
         }
     },
     "routes": [
