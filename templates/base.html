@@ -10,20 +10,20 @@
     <meta property="og:description" content="{% block ogdescription %}Transform dark PDFs into light, eye-friendly documents. Perfect for reading and printing.{% endblock %}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.url }}">
-    <meta property="og:image" content="{{ url_for('static', filename='images/og-image.jpg', _external=True) }}">
+    <meta property="og:image" content="{{ versioned_url_for('static', filename='images/og-image.jpg', _external=True) }}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{% block twtitle %}PDFInverter - Convert Dark PDFs to Light{% endblock %}">
     <meta name="twitter:description" content="{% block twdescription %}Transform dark PDFs into light, eye-friendly documents. Perfect for reading and printing.{% endblock %}">
-    <meta name="twitter:image" content="{{ url_for('static', filename='images/twitter-card.jpg', _external=True) }}">
+    <meta name="twitter:image" content="{{ versioned_url_for('static', filename='images/twitter-card.jpg', _external=True) }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ request.url_root }}{% block canonical %}{% endblock %}">
     <title>{% block title %}PDF Color Inverter{% endblock %} | PDFInverter</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ versioned_url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ versioned_url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <script src="{{ versioned_url_for('static', filename='script.js') }}" defer></script>
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",

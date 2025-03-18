@@ -19,7 +19,7 @@ from flask_compress import Compress
 from src.invert_color import invert_pdf_colors, remove_pages
 from src.extract_data import extract_data_from_pdf
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 Compress(app)  # Enable compression properly using Flask-Compress
 
 # Configure upload and processed directories
@@ -555,6 +555,23 @@ def add_header(response):
     response.headers['X-XSS-Protection'] = '1; mode=block'
     
     return response
+
+# Create a context processor for static file URLs
+@app.context_processor
+def utility_processor():
+    def versioned_url_for(endpoint, **values):
+        # Add a version parameter for cache busting if needed
+        if endpoint == 'static':
+            values['v'] = '1'  # Change this version number when you update static files
+            
+            # Handle the case where Vercel might need a different path treatment
+            # when _external=True is specified
+            if values.get('_external', False) and 'VERCEL' in os.environ:
+                # When in Vercel environment, make sure external URLs point to the right domain
+                return f"{os.environ.get('VERCEL_URL', request.url_root.rstrip('/'))}/static/{values['filename']}?v={values['v']}"
+        
+        return url_for(endpoint, **values)
+    return dict(versioned_url_for=versioned_url_for)
 
 if __name__ == '__main__':
     app.run(debug=True)
