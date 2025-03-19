@@ -27,6 +27,10 @@
                         <h3 style="font-size: 1.2rem; margin-bottom: 12px; color: #333;">Upload PDF Document</h3>
                         <p style="color: #666; margin-bottom: 0;">Drag and drop PDF files here, or click to select</p>
                         <input type="file" id="file-input" accept=".pdf" class="hidden">
+                        <p id="file-name-display" style="margin-top: 15px; font-size: 0.9rem; color: #666;">No file selected</p>
+                    </div>
+                    <div class="upload-button-container" style="text-align: center; margin-top: 20px;">
+                        <button id="upload-button" class="upload-button" style="background-color: #6366f1; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; opacity: 0.7;" disabled>Upload PDF</button>
                     </div>
                 </div>
             </div>
@@ -97,30 +101,36 @@
     const processButton = document.getElementById('process-button');
     const cancelButton = document.getElementById('cancel-button');
     const loadingIndicator = document.getElementById('loading-indicator');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const uploadButton = document.getElementById('upload-button');
     
     // Variables
     let selectedFile = null;
     
     // Event listeners
     dropArea.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', handleFileSelect);
+    fileInput.addEventListener('change', handleFileChange);
+    uploadButton.addEventListener('click', handleFileUpload);
     
     dropArea.addEventListener('dragover', (e) => {
         e.preventDefault();
-        dropArea.classList.add('dragover');
+        dropArea.style.borderColor = '#6366f1';
+        dropArea.style.backgroundColor = '#f5f5ff';
     });
     
     dropArea.addEventListener('dragleave', () => {
-        dropArea.classList.remove('dragover');
+        dropArea.style.borderColor = '#ccc';
+        dropArea.style.backgroundColor = '#fafafa';
     });
     
     dropArea.addEventListener('drop', (e) => {
         e.preventDefault();
-        dropArea.classList.remove('dragover');
+        dropArea.style.borderColor = '#ccc';
+        dropArea.style.backgroundColor = '#fafafa';
         
         if (e.dataTransfer.files.length) {
             fileInput.files = e.dataTransfer.files;
-            handleFileSelect();
+            handleFileChange();
         }
     });
     
@@ -147,7 +157,25 @@
     cancelButton.addEventListener('click', resetForm);
     
     // Functions
-    function handleFileSelect() {
+    function handleFileChange() {
+        const file = fileInput.files[0];
+        
+        if (file) {
+            if (file.type === 'application/pdf') {
+                fileNameDisplay.textContent = file.name;
+                uploadButton.disabled = false;
+            } else {
+                fileNameDisplay.textContent = 'Invalid file format. Please select a PDF.';
+                uploadButton.disabled = true;
+                alert('Please select a valid PDF file.');
+            }
+        } else {
+            fileNameDisplay.textContent = 'No file selected';
+            uploadButton.disabled = true;
+        }
+    }
+    
+    function handleFileUpload() {
         const file = fileInput.files[0];
         
         if (file && file.type === 'application/pdf') {
@@ -187,6 +215,8 @@
     function resetForm() {
         selectedFile = null;
         fileInput.value = '';
+        fileNameDisplay.textContent = 'No file selected';
+        uploadButton.disabled = true;
         customizeSection.classList.add('hidden');
         uploadSection.classList.remove('hidden');
     }
