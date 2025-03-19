@@ -27,7 +27,7 @@
         <p class="tool-description">Upload your PDF to convert dark colors to light, making it easier to read and more printer-friendly.</p>
         
         <form action="/upload" method="post" enctype="multipart/form-data" class="tool-form">
-            <div class="file-upload-container">
+            <div class="file-upload-container" id="drop-area">
                 <label for="file" class="file-upload-label">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 15V3M12 3L8 7M12 3L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -36,10 +36,56 @@
                     <span>Select your PDF file</span>
                 </label>
                 <input type="file" name="file" id="file" accept=".pdf" required class="file-upload-input">
-                <p class="file-name">No file selected</p>
+                <p class="file-name" id="file-name-display">No file selected</p>
             </div>
             <button type="submit" class="cta-button">Convert PDF</button>
         </form>
     </div>
 </section>
+
+<style>
+.file-upload-label {
+    margin-bottom: 8px;
+}
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('file');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const dropArea = document.getElementById('drop-area');
+        
+        // Update file name display when file is selected
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                fileNameDisplay.textContent = this.files[0].name;
+            } else {
+                fileNameDisplay.textContent = 'No file selected';
+            }
+        });
+        
+        // Handle drag and drop
+        dropArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropArea.classList.add('dragover');
+        });
+        
+        dropArea.addEventListener('dragleave', function() {
+            dropArea.classList.remove('dragover');
+        });
+        
+        dropArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                
+                // Trigger change event
+                const event = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(event);
+            }
+        });
+    });
+</script>
 {% endblock %} 

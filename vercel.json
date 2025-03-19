@@ -10,12 +10,6 @@
             }
         }
     ],
-    "functions": {
-        "api/*": {
-            "maxDuration": 30,
-            "memory": 512
-        }
-    },
     "routes": [
         {
             "src": "/static/(.*)",

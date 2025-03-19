@@ -38,7 +38,10 @@
                         <span>Drag and drop your PDF here, or click to select</span>
                     </label>
                     <input type="file" id="file-input" accept=".pdf" class="file-upload-input">
-                    <p class="file-name">No file selected</p>
+                    <p class="file-name" id="file-name-display">No file selected</p>
+                    <div class="upload-button-container">
+                        <button id="upload-button" class="upload-button" disabled>Upload PDF</button>
+                    </div>
                 </div>
             </div>
             
@@ -71,6 +74,35 @@
     </div>
 </section>
 
+<style>
+.upload-button-container {
+    text-align: center;
+    margin-top: 16px;
+}
+
+.upload-button {
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.upload-button:hover:not(:disabled) {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+.upload-button:disabled {
+    background-color: #a5a6f6;
+    cursor: not-allowed;
+}
+</style>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 <script>
@@ -91,6 +123,8 @@
     const nextPageBtn = document.getElementById('next-page');
     const pageInfo = document.getElementById('page-info');
     const pdfViewer = document.getElementById('pdf-viewer');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const uploadButton = document.getElementById('upload-button');
     
     // Variables
     let pdfDoc = null;
@@ -108,7 +142,8 @@
     
     // Event listeners for file upload
     dropArea.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', handleFileInput);
+    fileInput.addEventListener('change', handleFileChange);
+    uploadButton.addEventListener('click', handleFileUpload);
     
     dropArea.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -123,7 +158,13 @@
         e.preventDefault();
         dropArea.classList.remove('dragover');
         const files = e.dataTransfer.files;
-        handleFiles(files);
+        if (files.length > 0) {
+            fileInput.files = files;
+            
+            // Trigger change event
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+        }
     });
     
     // Button event listeners
@@ -133,13 +174,28 @@
     prevPageBtn.addEventListener('click', goToPrevPage);
     nextPageBtn.addEventListener('click', goToNextPage);
     
-    // Handle file input
-    function handleFileInput(e) {
+    // Handle file change
+    function handleFileChange(e) {
         const files = e.target.files;
-        handleFiles(files);
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type !== 'application/pdf') {
+                alert('Please upload a PDF file');
+                fileNameDisplay.textContent = 'No file selected';
+                uploadButton.disabled = true;
+                return;
+            }
+            fileNameDisplay.textContent = file.name;
+            uploadButton.disabled = false;
+        } else {
+            fileNameDisplay.textContent = 'No file selected';
+            uploadButton.disabled = true;
+        }
     }
     
-    function handleFiles(files) {
+    // Handle file upload button click
+    function handleFileUpload() {
+        const files = fileInput.files;
         if (files.length > 0) {
             const file = files[0];
             if (file.type !== 'application/pdf') {

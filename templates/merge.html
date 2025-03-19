@@ -36,6 +36,10 @@
                         <span>Drag and drop PDF files here, or click to select</span>
                         <input type="file" id="file-input" accept=".pdf" multiple class="file-upload-input">
                     </label>
+                    <p class="file-selection-info" id="file-selection-info">No files selected</p>
+                    <div class="upload-button-container">
+                        <button id="upload-button" class="upload-button" disabled>Upload PDFs</button>
+                    </div>
                 </div>
             </div>
             
@@ -98,6 +102,8 @@
     const modalMessage = document.getElementById('modal-message');
     const closeModal = document.getElementById('close-modal');
     const modalOkButton = document.getElementById('modal-ok-button');
+    const fileSelectionInfo = document.getElementById('file-selection-info');
+    const uploadButton = document.getElementById('upload-button');
     
     // Variables
     let files = [];
@@ -126,7 +132,8 @@
         // This is intentionally empty as the click is handled by the label
     });
     
-    fileInput.addEventListener('change', handleFileInput);
+    fileInput.addEventListener('change', handleFileChange);
+    uploadButton.addEventListener('click', handleFileUpload);
     
     dropArea.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -140,7 +147,13 @@
     dropArea.addEventListener('drop', (e) => {
         e.preventDefault();
         dropArea.classList.remove('dragover');
-        handleFiles(e.dataTransfer.files);
+        if (e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            
+            // Trigger change event
+            const event = new Event('change', { bubbles: true });
+            fileInput.dispatchEvent(event);
+        }
     });
     
     mergeButton.addEventListener('click', mergePDFs);
@@ -167,13 +180,40 @@
         messageModal.classList.remove('hidden');
     }
     
-    // Handle file input
-    function handleFileInput(e) {
+    // Handle file change
+    function handleFileChange(e) {
         if (e.target.files.length > 0) {
-            handleFiles(e.target.files);
+            let validFilesCount = 0;
+            
+            // Check if files are valid PDFs
+            for (let i = 0; i < e.target.files.length; i++) {
+                if (e.target.files[i].type === 'application/pdf') {
+                    validFilesCount++;
+                }
+            }
+            
+            if (validFilesCount > 0) {
+                fileSelectionInfo.textContent = `${validFilesCount} ${validFilesCount === 1 ? 'file' : 'files'} selected`;
+                uploadButton.disabled = false;
+            } else {
+                fileSelectionInfo.textContent = 'No valid PDF files selected';
+                uploadButton.disabled = true;
+                showModal("Invalid Files", "Please select valid PDF files.");
+            }
+        } else {
+            fileSelectionInfo.textContent = 'No files selected';
+            uploadButton.disabled = true;
         }
     }
     
+    // Handle file upload button click
+    function handleFileUpload() {
+        if (fileInput.files.length > 0) {
+            handleFiles(fileInput.files);
+        }
+    }
+    
+    // Handle files
     function handleFiles(fileList) {
         let hasAddedFiles = false;
         
@@ -509,6 +549,40 @@
     border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
+}
+
+.upload-button-container {
+    text-align: center;
+    margin-top: 16px;
+}
+
+.upload-button {
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.upload-button:hover:not(:disabled) {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+.upload-button:disabled {
+    background-color: #a5a6f6;
+    cursor: not-allowed;
+}
+
+.file-selection-info {
+    text-align: center;
+    margin-top: 8px;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
 }
 </style>
 {% endblock %} 
