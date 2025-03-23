@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_from_directory, redirect, url_for, after_this_request
+from flask import Flask, render_template, request, send_from_directory, redirect, url_for, after_this_request, flash, abort, jsonify, make_response, send_file
 import os
 from io import BytesIO
 from PIL import Image
@@ -6,8 +6,6 @@ import fitz
 import json
 import numpy as np
 from datetime import datetime
-from flask import render_template_string
-from flask import Flask, request, send_file, jsonify, make_response
 import markdown
 import yaml
 import re
@@ -15,22 +13,152 @@ import csv
 from functools import wraps
 import time
 from flask_compress import Compress
+import tempfile
+import random
+import uuid
+import secrets
+import requests
+
+# Import Vercel Blob for storage
+import vercel_blob
 
 from src.invert_color import invert_pdf_colors, remove_pages
 from src.extract_data import extract_data_from_pdf
 
 app = Flask(__name__, static_folder='static')
 Compress(app)  # Enable compression properly using Flask-Compress
+app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(16))
 
-# Configure upload and processed directories
-UPLOAD_FOLDER = '/tmp/uploads'
-PROCESSED_FOLDER = '/tmp/processed'
+# Configure file storage
+UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', '/tmp/uploads')
+PROCESSED_FOLDER = os.environ.get('PROCESSED_FOLDER', '/tmp/processed')
+app.config['MAX_CONTENT_LENGTH'] = int(os.environ.get('MAX_FILE_SIZE', 10)) * 1024 * 1024  # Default 10MB
+DEV_MODE = os.environ.get('DEV_MODE', 'false').lower() == 'true'
+BLOB_EXPIRATION = int(os.environ.get('BLOB_EXPIRATION', 86400))  # Default 24 hours
+
+# Create folders if they don't exist (for local development)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 16MB max file size
+# Utility function to save an uploaded file to Vercel Blob Storage
+async def save_uploaded_file(file, directory='uploads'):
+    try:
+        if file and file.filename:
+            # Generate unique filename to avoid conflicts
+            ext = os.path.splitext(file.filename)[1]
+            unique_id = str(uuid.uuid4())
+            unique_filename = f"{directory}/{unique_id}{ext}"
+            
+            # Read the file content
+            file_content = file.read()
+            
+            # Determine the content type
+            content_type = file.content_type or 'application/pdf'
+            
+            # Upload to Blob Storage
+            result = await vercel_blob.put(
+                unique_filename,
+                file_content,
+                options={
+                    'access': 'public',
+                    'contentType': content_type,
+                    'addRandomSuffix': False
+                }
+            )
+            
+            return {"success": True, "filename": unique_filename, "url": result.url, "blob": result}
+        else:
+            return {"success": False, "error": "No file provided"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# Utility function to save content to Vercel Blob Storage
+async def save_content_to_blob(content, filename, content_type='application/pdf', directory='outputs'):
+    try:
+        # Generate the full path including directory
+        unique_id = str(uuid.uuid4())
+        unique_filename = f"{directory}/{unique_id}_{filename}"
+        
+        # Upload to Blob Storage
+        result = await vercel_blob.put(
+            unique_filename,
+            content,
+            options={
+                'access': 'public',
+                'contentType': content_type,
+                'addRandomSuffix': False
+            }
+        )
+        
+        return {"success": True, "filename": unique_filename, "url": result.url, "blob": result}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# Utility function to retrieve file content (local or blob)
+async def get_file_content(file_path_or_url):
+    try:
+        # For Blob URLs, use get
+        if 'vercel-blob.com' in file_path_or_url:
+            content = await vercel_blob.get(file_path_or_url)
+            return BytesIO(content)
+        else:
+            # For local files
+            with open(file_path_or_url, 'rb') as f:
+                return BytesIO(f.read())
+    except Exception as e:
+        print(f"Error getting file content: {e}")
+        return None
+
+# Utility function to delete file (local or blob)
+async def delete_file(file_path_or_url):
+    try:
+        # For Blob URLs, delete the blob
+        if 'vercel-blob.com' in file_path_or_url:
+            # Extract the path from the URL
+            path = file_path_or_url.split('/')[-1].split('?')[0]
+            await vercel_blob.delete(path)
+            return True
+        else:
+            # For local files
+            if os.path.exists(file_path_or_url):
+                os.remove(file_path_or_url)
+                return True
+        return False
+    except Exception as e:
+        print(f"Error deleting file: {e}")
+        return False
+
+# Regular route cleanup for local files (not needed for Blob Storage as it auto-expires)
+def cleanup_old_files():
+    """Clean up files older than 24 hours in local storage directories."""
+    if not DEV_MODE:
+        return  # No need to clean up when using Blob Storage
+        
+    current_time = time.time()
+    for directory in [UPLOAD_FOLDER, PROCESSED_FOLDER]:
+        for filename in os.listdir(directory):
+            filepath = os.path.join(directory, filename)
+            if os.path.isfile(filepath) and (current_time - os.path.getmtime(filepath)) > 86400:
+                try:
+                    os.remove(filepath)
+                    print(f"Cleaned up old file: {filepath}")
+                except Exception as e:
+                    print(f"Error cleaning up file {filepath}: {e}")
+
+# Run cleanup periodically
+@app.before_request
+def before_request():
+    # Run cleanup with 1% chance on each request to avoid doing it too often
+    if DEV_MODE and random.random() < 0.01:
+        cleanup_old_files()
+
+# Configure temporary directories for processing
+TEMP_FOLDER = tempfile.gettempdir()
+os.makedirs(TEMP_FOLDER, exist_ok=True)
+
+# Configure Blob storage access
+BLOB_STORE_ID = os.environ.get('BLOB_STORE_ID')
+BLOB_READ_WRITE_TOKEN = os.environ.get('BLOB_READ_WRITE_TOKEN')
 
 # Cache control for static assets
 def cache_control(max_age):
@@ -59,7 +187,7 @@ def edit_pages():
     return render_template('remove.html')
 
 @app.route('/remove', methods=['POST'])
-def remove():
+async def remove():
     if 'file' not in request.files:
         return redirect(request.url)
     
@@ -70,53 +198,95 @@ def remove():
         return redirect(request.url)
 
     if file and file.filename.endswith('.pdf'):
-        input_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        output_filename = f"processed_{file.filename}"
-        output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
-
-        file.save(input_path)
-
-        remove_pages(input_path, output_path, pages)
-
-        return redirect(url_for('download_file', filename=output_filename))
+        try:
+            # Create temporary files for processing
+            temp_input_path = os.path.join(TEMP_FOLDER, f"input_{file.filename}")
+            temp_output_path = os.path.join(TEMP_FOLDER, f"output_{file.filename}")
+            
+            # Save uploaded file temporarily
+            file.save(temp_input_path)
+            
+            # Process the PDF (remove pages)
+            remove_pages(temp_input_path, temp_output_path, pages)
+            
+            # Upload processed file to storage
+            with open(temp_output_path, 'rb') as f:
+                file_content = f.read()
+            
+            # Save the processed file
+            blob_url = await save_processed_file(file_content, file.filename, 'application/pdf', 'removed_pages_')
+            
+            # Clean up temporary files
+            os.remove(temp_input_path)
+            os.remove(temp_output_path)
+            
+            # Return URL to download the processed file
+            return redirect(url_for('download_redirect', blob_url=blob_url))
+        except Exception as e:
+            print(f"Error processing PDF: {e}")
+            flash("An error occurred while processing your PDF", "error")
+            return redirect(request.url)
     else:
-        return "Invalid file format. Please upload a PDF."
+        flash("Invalid file format. Please upload a PDF.", "error")
+        return redirect(request.url)
 
 @app.route('/upload', methods=['POST'])
-def upload_file():
+async def upload_file():
     if 'file' not in request.files:
+        flash("No file part", "error")
         return redirect(request.url)
+    
     file = request.files['file']
     if file.filename == '':
+        flash("No file selected", "error")
         return redirect(request.url)
+        
     if file and file.filename.endswith('.pdf'):
-        input_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        output_filename = f"processed_{file.filename}"
-        output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
-
-        # Save the uploaded file
-        file.save(input_path)
-
-        # Process the file
-        invert_pdf_colors(input_path, output_path)
-
-        return redirect(url_for('download_file', filename=output_filename))
-    else:
-        return "Invalid file format. Please upload a PDF."
-
-@app.route('/download/<filename>')
-def download_file(filename):
-    filepath = os.path.join(app.config['PROCESSED_FOLDER'], filename)
-
-    @after_this_request
-    def remove_file(response):
         try:
-            os.remove(filepath)
+            # Create temporary files for processing
+            temp_input_path = os.path.join(TEMP_FOLDER, f"input_{file.filename}")
+            temp_output_path = os.path.join(TEMP_FOLDER, f"output_{file.filename}")
+            
+            # Save uploaded file temporarily
+            file.save(temp_input_path)
+            
+            # Process the file (invert colors)
+            invert_pdf_colors(temp_input_path, temp_output_path)
+            
+            # Upload processed file to storage
+            with open(temp_output_path, 'rb') as f:
+                file_content = f.read()
+            
+            # Save the processed file
+            blob_url = await save_processed_file(file_content, file.filename, 'application/pdf', 'inverted_')
+            
+            # Clean up temporary files
+            os.remove(temp_input_path)
+            os.remove(temp_output_path)
+            
+            # Return URL to download the processed file
+            return redirect(url_for('download_redirect', blob_url=blob_url))
         except Exception as e:
-            app.logger.error(f"Error removing file {filepath}: {e}")
-        return response
+            print(f"Error processing PDF: {e}")
+            flash("An error occurred while processing your PDF", "error")
+            return redirect(request.url)
+    else:
+        flash("Invalid file format. Please upload a PDF.", "error")
+        return redirect(request.url)
 
-    return send_from_directory(app.config['PROCESSED_FOLDER'], filename, as_attachment=True)
+@app.route('/download-redirect')
+def download_redirect():
+    """
+    Handle redirects to blob URLs for file downloads.
+    This is necessary to provide a better user experience when downloading files
+    from Vercel Blob Storage.
+    """
+    blob_url = request.args.get('blob_url', '')
+    if not blob_url:
+        flash('No download URL provided', 'error')
+        return redirect(url_for('index'))
+    
+    return render_template('download-redirect.html', blob_url=blob_url)
 
 @app.route('/blog')
 def blog_index():
@@ -144,7 +314,7 @@ def redact_pdf_page():
     return render_template('redact.html')
 
 @app.route('/upload-for-redaction', methods=['POST'])
-def upload_for_redaction():
+async def upload_for_redaction():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     
@@ -153,25 +323,46 @@ def upload_for_redaction():
         return jsonify({'error': 'No file selected'}), 400
     
     if file:
-        filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(filename)
-        return jsonify({'success': True, 'filename': file.filename})
+        try:
+            # Use our utility function to save to blob storage
+            result = await save_uploaded_file(file, directory='redact_inputs')
+            
+            if not result["success"]:
+                return jsonify({'error': result["error"]}), 500
+                
+            return jsonify({'success': True, 'filename': result["url"]})
+        except Exception as e:
+            print(f"Error in upload for redaction: {e}")
+            return jsonify({'error': str(e)}), 500
 
 @app.route('/apply-redactions', methods=['POST'])
-def apply_redactions():
+async def apply_redactions():
     data = request.json
-    filename = data.get('filename')
+    blob_url = data.get('filename')
     redactions = data.get('redactions', [])
     
-    if not filename or not redactions:
+    if not blob_url or not redactions:
         return jsonify({'error': 'Missing filename or redactions'}), 400
     
-    input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    output_filename = f"redacted_{filename}"
-    output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
-    
     try:
-        doc = fitz.open(input_path)
+        # Create temporary files for processing
+        temp_input_filename = f"redact_input_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+        temp_input_path = os.path.join(TEMP_FOLDER, temp_input_filename)
+        
+        temp_output_filename = f"redact_output_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+        temp_output_path = os.path.join(TEMP_FOLDER, temp_output_filename)
+        
+        # Download file from Blob storage
+        blob_data = await get_file_content(blob_url)
+        if not blob_data:
+            return jsonify({'error': 'Could not retrieve original file'}), 400
+        
+        # Save to temporary file
+        with open(temp_input_path, 'wb') as f:
+            f.write(blob_data.getvalue())
+        
+        # Apply redactions
+        doc = fitz.open(temp_input_path)
         
         # Apply redactions to each page
         for redaction in redactions:
@@ -184,11 +375,32 @@ def apply_redactions():
                 page.add_redact_annot((x0, y0, x1, y1), fill=(0, 0, 0))
                 page.apply_redactions()
         
-        doc.save(output_path)
+        doc.save(temp_output_path)
         doc.close()
         
-        return jsonify({'success': True, 'redacted_filename': output_filename})
+        # Upload redacted file to Vercel Blob
+        original_filename = blob_url.split('/')[-1].split('?')[0]
+        output_filename = f"redacted_{datetime.now().strftime('%Y%m%d%H%M%S')}_{original_filename}"
+        
+        with open(temp_output_path, 'rb') as f:
+            blob = await vercel_blob.put(
+                output_filename,
+                f,
+                options={
+                    'access': 'public',
+                    'addRandomSuffix': True
+                }
+            )
+        
+        # Clean up temporary files
+        os.unlink(temp_input_path)
+        os.unlink(temp_output_path)
+        
+        # Return success with URL
+        return jsonify({'success': True, 'url': blob.url})
+    
     except Exception as e:
+        print(f"Error applying redactions: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/merge-pdf')
@@ -196,7 +408,7 @@ def merge_pdf_page():
     return render_template('merge.html')
 
 @app.route('/merge-pdfs', methods=['POST'])
-def merge_pdfs():
+async def merge_pdfs():
     if 'files[]' not in request.files:
         return jsonify({'error': 'No files uploaded'}), 400
     
@@ -216,7 +428,7 @@ def merge_pdfs():
         # Save each file temporarily and add to the merged document
         temp_files = []
         for file in files:
-            temp_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            temp_path = os.path.join(TEMP_FOLDER, f"merge_input_{file.filename}")
             file.save(temp_path)
             temp_files.append(temp_path)
             
@@ -225,11 +437,20 @@ def merge_pdfs():
             merged_doc.insert_pdf(pdf_doc)
             pdf_doc.close()
         
-        # Save the merged document
-        output_filename = f"merged_pdf_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
-        output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
-        merged_doc.save(output_path)
+        # Save the merged document to a temporary file
+        temp_output_path = os.path.join(TEMP_FOLDER, f"merged_output_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf")
+        merged_doc.save(temp_output_path)
         merged_doc.close()
+        
+        # Upload merged file to Vercel Blob
+        output_filename = f"merged_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+        
+        with open(temp_output_path, 'rb') as f:
+            blob = await vercel_blob.put_blob(
+                output_filename,
+                f,
+                vercel_blob.PutBlobOptions(access='public', addRandomSuffix=True)
+            )
         
         # Clean up temporary files
         for temp_file in temp_files:
@@ -237,8 +458,9 @@ def merge_pdfs():
                 os.remove(temp_file)
             except:
                 pass
+        os.remove(temp_output_path)
         
-        return jsonify({'success': True, 'merged_filename': output_filename})
+        return jsonify({'success': True, 'merged_filename': blob.url})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -247,7 +469,7 @@ def customize_colors_page():
     return render_template('customize_colors.html')
 
 @app.route('/customize-pdf', methods=['POST'])
-def customize_pdf():
+async def customize_pdf():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     
@@ -272,16 +494,15 @@ def customize_pdf():
         bg_rgb = tuple(int(bg_color.lstrip('#')[i:i+2], 16) / 255 for i in (0, 2, 4))
         text_rgb = tuple(int(text_color.lstrip('#')[i:i+2], 16) / 255 for i in (0, 2, 4))
                 
-        # Save the uploaded file
-        input_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(input_path)
+        # Create temporary files for processing
+        temp_input_path = os.path.join(TEMP_FOLDER, f"customize_input_{file.filename}")
+        temp_output_path = os.path.join(TEMP_FOLDER, f"customize_output_{file.filename}")
         
-        # Create output filename
-        output_filename = f"customized_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
-        output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
+        # Save uploaded file to temp location
+        file.save(temp_input_path)
         
         # Open the PDF
-        doc = fitz.open(input_path)
+        doc = fitz.open(temp_input_path)
         
         # Process each page
         for page_num in range(len(doc)):
@@ -344,17 +565,24 @@ def customize_pdf():
                                     print(f"Could not render text: {text}")
         
         # Save the modified PDF
-        print("Saving the modified PDF")
-        doc.save(output_path)
+        doc.save(temp_output_path)
         doc.close()
         
-        # Clean up the input file
-        try:
-            os.remove(input_path)
-        except:
-            pass
+        # Upload customized file to Vercel Blob
+        output_filename = f"customized_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}"
         
-        return jsonify({'success': True, 'filename': output_filename})
+        with open(temp_output_path, 'rb') as f:
+            blob = await vercel_blob.put_blob(
+                output_filename,
+                f,
+                vercel_blob.PutBlobOptions(access='public', addRandomSuffix=True)
+            )
+        
+        # Clean up temporary files
+        os.remove(temp_input_path)
+        os.remove(temp_output_path)
+        
+        return jsonify({'success': True, 'filename': blob.url})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -363,7 +591,7 @@ def extract_data_page():
     return render_template('extract-data.html')
 
 @app.route('/extract-batch', methods=['POST'])
-def extract_batch():
+async def extract_batch():
     if 'files[]' not in request.files:
         return jsonify({'error': 'No files uploaded'}), 400
     
@@ -395,30 +623,26 @@ def extract_batch():
         fields_to_extract = [field.strip() for field in request.form['fields'].split(',')]
     
     try:
-        # Create a temporary directory for processing
-        temp_dir = os.path.join(app.config['UPLOAD_FOLDER'], f"batch_{datetime.now().strftime('%Y%m%d%H%M%S')}")
-        os.makedirs(temp_dir, exist_ok=True)
-        
-        # Save files temporarily
-        file_paths = []
-        for file in files:
-            temp_path = os.path.join(temp_dir, file.filename)
-            file.save(temp_path)
-            file_paths.append(temp_path)
-        
         # Process PDFs and extract data
         extracted_data = []
-        for path in file_paths:
+        temp_files = []
+        
+        for file in files:
+            # Save files temporarily
+            temp_path = os.path.join(TEMP_FOLDER, f"extract_input_{file.filename}")
+            file.save(temp_path)
+            temp_files.append(temp_path)
+            
             # Extract data from PDF
-            data = extract_data_from_pdf(path, fields_to_extract)
+            data = extract_data_from_pdf(temp_path, fields_to_extract)
             extracted_data.append({
-                'filename': os.path.basename(path),
+                'filename': file.filename,
                 'data': data
             })
         
         # Create CSV from extracted data
         csv_filename = f"extracted_data_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv"
-        csv_path = os.path.join(app.config['PROCESSED_FOLDER'], csv_filename)
+        csv_path = os.path.join(TEMP_FOLDER, csv_filename)
         
         # Write CSV file
         with open(csv_path, 'w', newline='') as csvfile:
@@ -436,23 +660,28 @@ def extract_batch():
                 row.update(item['data'])
                 writer.writerow(row)
         
+        # Upload CSV to Vercel Blob
+        with open(csv_path, 'rb') as f:
+            blob = await vercel_blob.put_blob(
+                csv_filename,
+                f,
+                vercel_blob.PutBlobOptions(access='public', addRandomSuffix=True)
+            )
+        
         # Clean up temporary files
-        for path in file_paths:
+        for path in temp_files:
             try:
                 os.remove(path)
             except:
                 pass
-        try:
-            os.rmdir(temp_dir)
-        except:
-            pass
+        os.remove(csv_path)
         
-        return jsonify({'success': True, 'csv_filename': csv_filename})
+        return jsonify({'success': True, 'csv_filename': blob.url})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @app.route('/extract-single', methods=['POST'])
-def extract_single():
+async def extract_single():
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
     
@@ -473,7 +702,7 @@ def extract_single():
     
     try:
         # Save file temporarily
-        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        temp_path = os.path.join(TEMP_FOLDER, f"extract_single_{file.filename}")
         file.save(temp_path)
         
         # Extract data from PDF
@@ -576,6 +805,168 @@ def utility_processor():
         # For all other cases, use Flask's url_for
         return url_for(endpoint, **values)
     return dict(versioned_url_for=versioned_url_for)
+
+@app.route('/invert-colors', methods=['POST'])
+async def invert_colors():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    if file:
+        try:
+            # Create temporary file to work with
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
+                file.save(temp_file.name)
+                temp_input_path = temp_file.name
+            
+            # Process the PDF (invert colors)
+            temp_output_path = f"{temp_input_path}_inverted.pdf"
+            invert_pdf_colors(temp_input_path, temp_output_path)
+            
+            # Generate output filename
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            output_filename = f"inverted_{timestamp}.pdf"
+            
+            # Upload to Vercel Blob
+            with open(temp_output_path, 'rb') as f:
+                blob = await vercel_blob.put(
+                    output_filename,
+                    f,
+                    options={
+                        'access': 'public',
+                        'addRandomSuffix': True
+                    }
+                )
+            
+            # Clean up temporary files
+            os.unlink(temp_input_path)
+            os.unlink(temp_output_path)
+            
+            # Return success with URL
+            return jsonify({"success": True, "url": blob.url})
+        
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+@app.route('/remove-pages', methods=['POST'])
+async def remove_pages_api():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    pages_to_remove = request.form.get('pages', '')
+    
+    if not pages_to_remove:
+        return jsonify({"error": "No pages specified for removal"}), 400
+    
+    try:
+        # Parse pages to remove
+        pages_list = [int(p.strip()) for p in pages_to_remove.split(',') if p.strip().isdigit()]
+        
+        if not pages_list:
+            return jsonify({"error": "Invalid page numbers"}), 400
+        
+        # Create temporary file to work with
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
+            file.save(temp_file.name)
+            temp_input_path = temp_file.name
+        
+        # Process the PDF (remove pages)
+        temp_output_path = f"{temp_input_path}_pages_removed.pdf"
+        remove_pages(temp_input_path, temp_output_path, pages_list)
+        
+        # Generate output filename
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        output_filename = f"pages_removed_{timestamp}.pdf"
+        
+        # Upload to Vercel Blob
+        with open(temp_output_path, 'rb') as f:
+            blob = await vercel_blob.put(
+                output_filename,
+                f,
+                options={
+                    'access': 'public',
+                    'addRandomSuffix': True
+                }
+            )
+        
+        # Clean up temporary files
+        os.unlink(temp_input_path)
+        os.unlink(temp_output_path)
+        
+        # Return success with URL
+        return jsonify({"success": True, "url": blob.url})
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/extract', methods=['POST'])
+async def extract_data_api():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['file']
+    
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    if not file.filename.lower().endswith('.pdf'):
+        return jsonify({"error": "File must be a PDF"}), 400
+    
+    try:
+        # Create temporary file to work with
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
+            file.save(temp_file.name)
+            temp_input_path = temp_file.name
+        
+        # Extract data from PDF
+        data = extract_data_from_pdf(temp_input_path)
+        
+        # Save data to CSV
+        csv_path = f"{temp_input_path}_data.csv"
+        with open(csv_path, 'w', newline='') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            csv_writer.writerow(['Page', 'Type', 'Text'])
+            for item in data:
+                csv_writer.writerow([item['page'], item['type'], item['text']])
+        
+        # Generate CSV filename
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        original_filename = os.path.splitext(file.filename)[0]
+        csv_filename = f"{original_filename}_data_{timestamp}.csv"
+        
+        # Upload CSV to Vercel Blob
+        with open(csv_path, 'rb') as f:
+            blob = await vercel_blob.put(
+                csv_filename,
+                f,
+                options={
+                    'access': 'public', 
+                    'addRandomSuffix': True
+                }
+            )
+        
+        # Clean up temporary files
+        os.unlink(temp_input_path)
+        os.unlink(csv_path)
+        
+        # Return success with URL and extracted data
+        return jsonify({
+            "success": True,
+            "url": blob.url,
+            "data": data
+        })
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

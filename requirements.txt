@@ -9,3 +9,4 @@ pyyaml
 mistralai==1.5.1
 python-dotenv==1.0.1
 Flask-Compress==1.14
+vercel-blob==0.3.0

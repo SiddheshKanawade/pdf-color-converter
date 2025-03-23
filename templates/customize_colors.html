@@ -248,8 +248,8 @@
             loadingIndicator.classList.add('hidden');
             
             if (data.success) {
-                // Download the customized PDF
-                window.location.href = `/download/${data.filename}`;
+                // Redirect to download page with the blob URL
+                window.location.href = `/download-redirect?blob_url=${encodeURIComponent(data.filename)}`;
                 
                 // Reset the form
                 resetForm();

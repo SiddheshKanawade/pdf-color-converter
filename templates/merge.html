@@ -370,8 +370,8 @@
             loadingIndicator.classList.add('hidden');
             
             if (data.success) {
-                // Download the merged PDF
-                window.location.href = `/download/${data.merged_filename}`;
+                // Redirect to download page with the blob URL
+                window.location.href = `/download-redirect?blob_url=${encodeURIComponent(data.merged_filename)}`;
                 
                 // Clear the file list
                 clearFiles();

@@ -40,5 +40,8 @@
                 "referrer-policy": "strict-origin-when-cross-origin"
             }
         }
-    ]
+    ],
+    "env": {
+        "PYTHONUNBUFFERED": "1"
+    }
 }

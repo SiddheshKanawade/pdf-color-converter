@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Download Your PDF{% endblock %}
+
+{% block content %}
+<section class="download-section">
+    <div class="download-container">
+        <h1>Your PDF is Ready!</h1>
+        <p>Your processed PDF file has been prepared and is ready for download.</p>
+        
+        <div class="download-info">
+            <p>If your download doesn't start automatically, click the button below:</p>
+            <a id="download-button" href="{{ blob_url }}" class="download-button" download>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download PDF
+            </a>
+        </div>
+        
+        <div class="download-actions">
+            <a href="/" class="secondary-button">Return to Home</a>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Auto-download after a short delay
+    window.onload = function() {
+        setTimeout(function() {
+            // Trigger download automatically
+            document.getElementById('download-button').click();
+        }, 1500); // Small delay to allow the page to render
+    };
+</script>
+
+<style>
+    .download-section {
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+    }
+    
+    .download-container {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .download-info {
+        margin: 2rem 0;
+    }
+    
+    .download-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--primary-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .download-button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+    
+    .download-actions {
+        margin-top: 2rem;
+    }
+    
+    .secondary-button {
+        color: var(--text-color);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .secondary-button:hover {
+        background: var(--hover-bg);
+    }
+</style>
+{% endblock %} 

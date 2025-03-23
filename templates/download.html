@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Download Your Processed PDF{% endblock %}
+{% block ogtitle %}Download Your Processed PDF{% endblock %}
+{% block ogdescription %}Your PDF has been successfully processed. Click to download.{% endblock %}
+{% block canonical %}download{% endblock %}
+
+{% block content %}
+<section class="hero" aria-label="Main banner">
+    <div class="hero-content">
+        <h1>Your PDF is Ready!</h1>
+        <p class="hero-description">Your file has been successfully processed and is ready for download.</p>
+    </div>
+</section>
+
+<section class="tool-section">
+    <div class="tool-container">
+        <div class="tool-header">
+            <div class="tool-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 15V3M12 15L8 11M12 15L16 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4 13V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2>Download Your PDF</h2>
+        </div>
+        <p class="tool-description">Your PDF file "{{ filename }}" has been processed successfully. Click the button below to download.</p>
+        
+        <div class="download-container">
+            <a href="{{ blob_url }}" class="cta-button download-button" download>Download PDF</a>
+            <p class="download-note">Your file will be automatically deleted after 24 hours for privacy and security.</p>
+        </div>
+        
+        <div class="action-links">
+            <a href="/" class="secondary-button">Back to Home</a>
+            <a href="javascript:history.back()" class="text-link">Process another file</a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .download-container {
+        text-align: center;
+        padding: 2rem;
+        margin: 2rem 0;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .download-button {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    .download-note {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+    }
+    
+    .action-links {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .text-link {
+        display: inline-flex;
+        align-items: center;
+        color: var(--accent-color);
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+        padding: 0.75rem 0;
+    }
+    
+    .text-link:hover {
+        color: var(--hover-color);
+        text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+        .action-links {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .secondary-button, .text-link {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %} 

@@ -220,7 +220,7 @@
             const data = await response.json();
             
             if (data.success) {
-                currentFilename = data.filename;
+                currentFilename = data.filename; // This is now a blob URL
                 loadPDF(file);
             } else {
                 alert(data.error || 'Upload failed');
@@ -444,7 +444,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    filename: currentFilename,
+                    filename: currentFilename, // This is now a blob URL
                     redactions: redactions
                 })
             });
@@ -452,8 +452,8 @@
             const data = await response.json();
             
             if (data.success) {
-                // Download the redacted PDF
-                window.location.href = `/download/${data.redacted_filename}`;
+                // Redirect to download page with the blob URL
+                window.location.href = `/download-redirect?blob_url=${encodeURIComponent(data.redacted_filename)}`;
             } else {
                 alert(data.error || 'Redaction failed');
             }

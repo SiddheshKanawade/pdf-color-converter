@@ -176,7 +176,7 @@
         
         batchClearButton.addEventListener('click', clearBatchFiles);
         
-        batchExtractButton.addEventListener('click', processBatchFiles);
+        batchExtractButton.addEventListener('click', processBatchExtraction);
         
         // Field tag click handling
         document.querySelectorAll('.field-tag').forEach(tag => {
@@ -272,25 +272,26 @@
             updateBatchButtons();
         }
         
-        async function processBatchFiles() {
-            if (batchFiles.length === 0) {
-                alert('Please add at least one PDF file to process.');
+        async function processBatchExtraction() {
+            const files = batchFileInput.files;
+            if (!files || files.length === 0) {
+                showBatchMessage('Please select at least one PDF file.', 'error');
                 return;
             }
             
-            // Show loading indicator
-            batchLoadingIndicator.classList.remove('hidden');
+            // Show loading
+            setBatchLoading(true);
+            
+            // Get optional fields to extract
+            const fields = batchFieldsInput.value.trim();
             
             // Create FormData
             const formData = new FormData();
-            batchFiles.forEach(file => {
-                formData.append('files[]', file);
-            });
-            
-            // Add extraction fields if specified
-            const extractionFields = document.getElementById('batch-fields').value.trim();
-            if (extractionFields) {
-                formData.append('fields', extractionFields);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files[]', files[i]);
+            }
+            if (fields) {
+                formData.append('fields', fields);
             }
             
             try {
@@ -301,22 +302,35 @@
                 
                 const data = await response.json();
                 
-                // Hide loading indicator
-                batchLoadingIndicator.classList.add('hidden');
-                
                 if (data.success) {
-                    // Download the CSV file
-                    window.location.href = `/download/${data.csv_filename}`;
+                    // Download CSV using the blob URL
+                    showBatchMessage('Data extracted successfully!', 'success');
                     
-                    // Clear the file list
-                    clearBatchFiles();
+                    // Create download link
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = data.csv_filename; // This is now a blob URL
+                    downloadLink.download = 'extracted_data.csv';
+                    downloadLink.textContent = 'Download CSV';
+                    downloadLink.className = 'csv-download-link';
+                    
+                    // Add to message container
+                    const messageContainer = document.getElementById('batch-message');
+                    if (messageContainer.querySelector('.csv-download-link')) {
+                        messageContainer.querySelector('.csv-download-link').remove();
+                    }
+                    messageContainer.appendChild(downloadLink);
+                    
+                    // Reset form
+                    batchForm.reset();
+                    updateBatchFileLabel();
                 } else {
-                    alert(data.error || 'Processing failed');
+                    showBatchMessage(data.error || 'Processing failed', 'error');
                 }
             } catch (error) {
-                console.error('Error processing files:', error);
-                batchLoadingIndicator.classList.add('hidden');
-                alert('Error processing files');
+                console.error('Error extracting data:', error);
+                showBatchMessage('Error extracting data', 'error');
+            } finally {
+                setBatchLoading(false);
             }
         }
         
