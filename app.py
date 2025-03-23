@@ -568,8 +568,12 @@ def utility_processor():
             # when _external=True is specified
             if values.get('_external', False) and 'VERCEL' in os.environ:
                 # When in Vercel environment, make sure external URLs point to the right domain
-                return f"{os.environ.get('VERCEL_URL', request.url_root.rstrip('/'))}/static/{values['filename']}?v={values['v']}"
+                vercel_url = os.environ.get('VERCEL_URL', '')
+                if vercel_url and not vercel_url.startswith(('http://', 'https://')):
+                    vercel_url = f"https://{vercel_url}"
+                return f"{vercel_url}/static/{values['filename']}?v={values['v']}"
         
+        # For all other cases, use Flask's url_for
         return url_for(endpoint, **values)
     return dict(versioned_url_for=versioned_url_for)
 
