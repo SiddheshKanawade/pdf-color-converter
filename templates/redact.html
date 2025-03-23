@@ -103,11 +103,11 @@
 }
 </style>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script src="{{ url_for('static', filename='js/pdf.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/fabric.min.js') }}"></script>
 <script>
     // Set PDF.js worker path
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "{{ url_for('static', filename='js/pdf.worker.min.js') }}";
     
     // DOM elements
     const dropArea = document.getElementById('drop-area');
