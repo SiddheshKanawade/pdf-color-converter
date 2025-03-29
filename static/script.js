@@ -105,9 +105,88 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitButton.innerHTML = '<span class="spinner"></span> Processing...';
             }
             
-            return true;
+            // Set up handling of file download completion
+            const formData = new FormData(form);
+            
+            // Prevent the default form submission to handle it via fetch
+            e.preventDefault();
+            
+            // Submit form data via fetch
+            fetch(form.action, {
+                method: form.method,
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Create a URL for the blob
+                const url = window.URL.createObjectURL(blob);
+                
+                // Create a link to download the file
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                
+                // Set the file name from the Content-Disposition header if available
+                // or use a default name
+                const filename = 'downloaded-file.pdf';
+                a.download = filename;
+                
+                // Append to the document and trigger the download
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                // Reset the UI state after download
+                resetUploadState(form);
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                alert('There was an error processing your file. Please try again.');
+                resetUploadState(form);
+            });
+            
+            return false;
         });
     });
+    
+    // Function to reset UI after file processing
+    function resetUploadState(form) {
+        // Re-enable the submit button
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Submit'; // Reset to original text
+        }
+        
+        // Clear the file input
+        const fileInput = form.querySelector('input[type="file"]');
+        if (fileInput) {
+            fileInput.value = '';
+            
+            // Reset the file name display
+            const fileNameElement = fileInput.closest('.file-upload-container')?.querySelector('.file-name');
+            if (fileNameElement) {
+                fileNameElement.textContent = 'No file selected';
+                fileNameElement.classList.remove('selected');
+            }
+            
+            // Reset the drag-drop container
+            const container = fileInput.closest('.file-upload-container');
+            if (container) {
+                container.classList.remove('dragover');
+                // Remove any other classes that might indicate a file is present
+                container.classList.remove('has-file');
+            }
+        }
+    }
     
     // Add aria-current to current page in navigation
     const currentPath = window.location.pathname;
