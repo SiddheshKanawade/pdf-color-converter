@@ -129,6 +129,22 @@ body {
     background-color: #f0b94d;
 }
 
+/* File size warning message */
+.file-size-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.file-size-warning p {
+    margin: 0;
+}
+
 /* Hero section */
 .hero {
     padding: 3rem 2rem 2rem;
