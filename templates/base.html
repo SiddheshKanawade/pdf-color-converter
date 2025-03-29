@@ -88,6 +88,12 @@
         </nav>
     </header>
 
+    {% if not request.path.startswith('/blog') %}
+    <div class="file-size-warning">
+        <p>We currently don't support PDF files with size greater than 4.5 MB</p>
+    </div>
+    {% endif %}
+
     <main>
         {% block content %}{% endblock %}
     </main>
