@@ -14,65 +14,24 @@
         </div>
         
         <div class="tabs">
-            <button class="tab-button active" data-tab="batch">Batch Processing</button>
-            <button class="tab-button" data-tab="single">Single PDF</button>
+            <button class="tab-button" data-tab="batch">Batch Processing</button>
+            <button class="tab-button active" data-tab="single">Single PDF</button>
         </div>
         
         <div class="tab-content">
             <!-- Batch Processing Tab -->
-            <div class="tab-pane active" id="batch-tab">
+            <div class="tab-pane" id="batch-tab">
                 <div class="batch-container">
-                    <div class="info-box">
-                        <h3>Batch Processing</h3>
-                        <ul>
-                            <li>Upload up to 100 PDFs of similar structure</li>
-                            <li>Maximum total size: 100 MB</li>
-                            <li>Results will be provided as a CSV file</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="extraction-fields">
-                        <label for="batch-fields">Fields to extract (comma separated)</label>
-                        <input type="text" id="batch-fields" placeholder="e.g., email,phone,date,name,address" class="field-input">
-                        <p class="field-help">Specify the fields to extract from your PDFs. Leave empty to extract all detected fields.</p>
-                        <div class="field-examples">
-                            <p class="field-examples-label">Click to add common fields:</p>
-                            <span class="field-tag">email</span>
-                            <span class="field-tag">phone</span>
-                            <span class="field-tag">date</span>
-                            <span class="field-tag">name</span>
-                            <span class="field-tag">address</span>
-                        </div>
-                    </div>
-                    
-                    <div class="file-upload-area">
-                        <div class="upload-prompt" id="batch-drop-area">
-                            <div class="upload-icon">📄</div>
-                            <p>Drag and drop PDF files here, or click to select</p>
-                            <input type="file" id="batch-file-input" accept=".pdf" multiple class="hidden">
-                        </div>
-                    </div>
-                    
-                    <div class="file-list-container">
-                        <h3>Files to process</h3>
-                        <p class="file-count">0 files selected (0 MB)</p>
-                        <ul id="batch-file-list" class="file-list"></ul>
-                        
-                        <div class="extract-actions">
-                            <button id="batch-extract-button" class="primary-button" disabled>Extract Data</button>
-                            <button id="batch-clear-files" class="control-button" disabled>Clear All</button>
-                        </div>
-                    </div>
-                    
-                    <div id="batch-loading-indicator" class="loading-indicator hidden">
-                        <div class="spinner"></div>
-                        <p>Processing your PDFs...</p>
+                    <div class="coming-soon-message">
+                        <div class="coming-soon-icon">🚧</div>
+                        <h3>Batch Processing Coming Soon</h3>
+                        <p>We're currently working on this feature to make it even better. Please check back soon!</p>
                     </div>
                 </div>
             </div>
             
             <!-- Single PDF Tab -->
-            <div class="tab-pane" id="single-tab">
+            <div class="tab-pane active" id="single-tab">
                 <div class="single-container">
                     <div class="info-box">
                         <h3>Single PDF Processing</h3>
@@ -128,17 +87,24 @@
             button.addEventListener('click', () => {
                 const tabId = button.getAttribute('data-tab');
                 
-                // Update active tab button
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                // Show active tab pane
-                tabPanes.forEach(pane => pane.classList.remove('active'));
-                document.getElementById(`${tabId}-tab`).classList.add('active');
+                // Only allow switching to the single tab
+                if (tabId === 'single') {
+                    // Update active tab button
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Show active tab pane
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                } else if (tabId === 'batch') {
+                    // Show notification that batch processing is coming soon
+                    alert('Batch processing is coming soon! We\'re working hard to make this feature available.');
+                }
             });
         });
         
-        // Batch Processing
+        /*
+        // Batch Processing - Commented out for now
         const batchDropArea = document.getElementById('batch-drop-area');
         const batchFileInput = document.getElementById('batch-file-input');
         const batchFileList = document.getElementById('batch-file-list');
@@ -319,6 +285,7 @@
                 alert('Error processing files');
             }
         }
+        */
         
         // Single PDF Processing
         const singleDropArea = document.getElementById('single-drop-area');
@@ -971,6 +938,35 @@
         .control-button {
             width: 100%;
         }
+    }
+    
+    .coming-soon-message {
+        text-align: center;
+        padding: 3rem 2rem;
+        background-color: rgba(74, 108, 247, 0.05);
+        border-radius: 12px;
+        border: 2px dashed var(--accent-color);
+    }
+    
+    .coming-soon-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        color: var(--accent-color);
+    }
+    
+    .coming-soon-message h3 {
+        font-size: 1.8rem;
+        color: var(--accent-color);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .coming-soon-message p {
+        font-size: 1.1rem;
+        color: var(--secondary-color);
+        max-width: 500px;
+        margin: 0 auto;
+        line-height: 1.6;
     }
 </style>
 {% endblock %} 

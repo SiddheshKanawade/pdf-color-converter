@@ -576,8 +576,9 @@ def sitemap():
 # Helper function to generate static sitemap file for development
 def generate_static_sitemap():
     """Generate and save a static sitemap.xml file"""
-    # Generate sitemap data
-    pages, sitemap_xml = generate_sitemap_data()
+    # Generate sitemap data with default host
+    host_base = 'https://www.pdfinverter.com'  # Default to production URL
+    pages, sitemap_xml = generate_sitemap_data(host_base)
     
     # Save to static file
     static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
@@ -624,5 +625,6 @@ def utility_processor():
 # Generate static sitemap when run directly
 if __name__ == '__main__':
     # Generate static sitemap before starting the server
-    generate_static_sitemap()
+    with app.app_context():
+        generate_static_sitemap()
     app.run(debug=True)
