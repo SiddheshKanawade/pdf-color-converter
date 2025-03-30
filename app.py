@@ -489,29 +489,37 @@ def extract_single():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/sitemap.xml')
-def sitemap():
-    """Generate a dynamic sitemap"""
-    host_base = request.host_url.rstrip('/')
+# Utility function for sitemap generation
+def generate_sitemap_data(host_base=None):
+    """Generate sitemap data for all routes and blog posts
     
-    # Define static routes
+    Args:
+        host_base (str): Base URL for the site
+        
+    Returns:
+        tuple: (pages list, sitemap XML)
+    """
+    if not host_base:
+        host_base = 'https://www.pdfinverter.com'
+    
+    # Define all accessible pages (GET routes that render HTML)
     static_routes = [
-        '',
-        '/convert',
-        '/edit-pages',
-        '/redact-pdf',
-        '/merge-pdf',
-        '/customize-colors',
-        '/extract-data',
-        '/blog'
+        '',                  # Home page
+        '/convert',          # Convert page
+        '/edit-pages',       # Edit pages
+        '/redact-pdf',       # Redact PDF tool
+        '/merge-pdf',        # Merge PDF tool
+        '/customize-colors', # Customize colors tool
+        '/extract-data',     # Extract data tool
+        '/blog'              # Blog index
     ]
     
     # Get blog posts from content directory
     blog_posts = []
-    content_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'content')
+    content_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'content', 'blog')
     if os.path.exists(content_dir):
         for filename in os.listdir(content_dir):
-            if filename.endswith('.md'):
+            if filename.endswith('.md') and filename != 'posts.yaml':
                 slug = filename[:-3]  # Remove .md extension
                 blog_posts.append(f'/blog/{slug}')
     
@@ -519,13 +527,16 @@ def sitemap():
     pages = []
     today = datetime.now().strftime('%Y-%m-%d')
     
-    # Add static routes
+    # Add static routes with appropriate priorities
     for route in static_routes:
+        priority = '1.0' if route == '' else '0.9' if route == '/convert' else '0.8'
+        changefreq = 'weekly' if route in ['', '/convert', '/blog'] else 'monthly'
+        
         pages.append({
             'loc': f'{host_base}{route}',
             'lastmod': today,
-            'changefreq': 'weekly' if route in ['', '/blog'] else 'monthly',
-            'priority': '1.0' if route == '' else '0.8'
+            'changefreq': changefreq,
+            'priority': priority
         })
     
     # Add blog posts
@@ -537,10 +548,43 @@ def sitemap():
             'priority': '0.7'
         })
     
+    # Generate sitemap XML
     sitemap_xml = render_template('sitemap.xml', pages=pages)
+    
+    return pages, sitemap_xml
+
+@app.route('/sitemap.xml')
+def sitemap():
+    """Generate a dynamic sitemap"""
+    host_base = request.host_url.rstrip('/')
+    if not host_base.startswith('http'):
+        host_base = 'https://www.pdfinverter.com'  # Default to production URL if request URL is not available
+    
+    # Generate sitemap data
+    _, sitemap_xml = generate_sitemap_data(host_base)
+    
+    # Save to static file when running in development
+    if app.debug:
+        static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+        with open(os.path.join(static_folder, 'sitemap.xml'), 'w') as f:
+            f.write(sitemap_xml)
+    
     response = make_response(sitemap_xml)
     response.headers['Content-Type'] = 'application/xml'
     return response
+
+# Helper function to generate static sitemap file for development
+def generate_static_sitemap():
+    """Generate and save a static sitemap.xml file"""
+    # Generate sitemap data
+    pages, sitemap_xml = generate_sitemap_data()
+    
+    # Save to static file
+    static_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+    with open(os.path.join(static_folder, 'sitemap.xml'), 'w') as f:
+        f.write(sitemap_xml)
+    
+    print(f"Static sitemap.xml generated with {len(pages)} URLs")
 
 @app.route('/robots.txt')
 def robots():
@@ -577,5 +621,8 @@ def utility_processor():
         return url_for(endpoint, **values)
     return dict(versioned_url_for=versioned_url_for)
 
+# Generate static sitemap when run directly
 if __name__ == '__main__':
+    # Generate static sitemap before starting the server
+    generate_static_sitemap()
     app.run(debug=True)
