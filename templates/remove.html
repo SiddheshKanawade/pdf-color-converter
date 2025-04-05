@@ -1,15 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}Remove PDF Pages - Delete Specific Pages{% endblock %}
-{% block ogtitle %}Remove PDF Pages - Delete Specific Pages{% endblock %}
-{% block ogdescription %}Easily remove specific pages from your PDF documents. Keep only the pages you need with our free online tool.{% endblock %}
+{% block title %}Remove PDF Pages - #1 PDF Page Deletion Tool{% endblock %}
+{% block ogtitle %}Remove PDF Pages - Delete & Manage PDF Pages Online{% endblock %}
+{% block ogdescription %}Remove specific pages from PDF documents with precision. Our advanced PDF page deletion tool allows you to selectively delete pages by number or range.{% endblock %}
+{% block description %}The most accurate PDF page removal tool. Delete specific pages from your documents with precision control. Support for individual pages, page ranges, and complex selection patterns.{% endblock %}
 {% block canonical %}edit-pages{% endblock %}
+
+{% block breadcrumbs %}
+,{
+    "@type": "ListItem",
+    "position": 2,
+    "name": "Remove PDF Pages",
+    "item": "{{ request.url_root }}edit-pages"
+}
+{% endblock %}
 
 {% block content %}
 <section class="hero" aria-label="Main banner">
     <div class="hero-content">
-        <h1>Remove PDF Pages</h1>
-        <p class="hero-description">Delete specific pages from your PDF document. Keep only what you need.</p>
+        <h1>Remove PDF Pages with Precision</h1>
+        <p class="hero-description">Delete unwanted pages from your PDF documents with exact control over which pages to keep or remove.</p>
     </div>
 </section>
 
@@ -21,9 +31,9 @@
                     <path d="M19 7L18 8M19 7L20 8M19 7V4M3 15V16C3 17.6569 4.34315 19 6 19H8M3 15C3 16.6569 4.34315 18 6 18H8M3 15V8C3 6.34315 4.34315 5 6 5H16M8 18V21M8 18H12M16 5H19M16 5V8M12 18H16M12 18V21M16 18V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
-            <h2>Page Removal Tool</h2>
+            <h2>PDF Page Management Tool</h2>
         </div>
-        <p class="tool-description">Upload your PDF and specify which pages you want to remove. You can remove individual pages or page ranges.</p>
+        <p class="tool-description">Upload your PDF and specify which pages you want to remove. Our tool supports individual pages, page ranges, and complex selection patterns for maximum flexibility.</p>
         
         <div class="file-upload-container" id="upload-container">
             <form action="/remove" method="post" enctype="multipart/form-data" class="tool-form">
@@ -67,7 +77,7 @@
 </section>
 
 <section class="how-it-works">
-    <h2>How to Remove PDF Pages</h2>
+    <h2>How to Delete PDF Pages</h2>
     <div class="steps">
         <div class="step">
             <div class="step-number">1</div>
@@ -77,74 +87,67 @@
         <div class="step">
             <div class="step-number">2</div>
             <h3>Select Pages</h3>
-            <p>Specify which pages you want to remove from the document</p>
+            <p>Specify which pages you want to remove using page numbers or ranges</p>
         </div>
         <div class="step">
             <div class="step-number">3</div>
             <h3>Download</h3>
-            <p>Get your processed PDF with the specified pages removed</p>
+            <p>Get your processed PDF with the unwanted pages removed</p>
         </div>
     </div>
 </section>
 
-<script>
-    // Display selected filename
-    const fileInput = document.getElementById('file');
-    const fileNameDisplay = document.getElementById('file-name');
-    
-    fileInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            fileNameDisplay.textContent = this.files[0].name;
-            fileNameDisplay.classList.add('selected');
-        } else {
-            fileNameDisplay.textContent = 'No file selected';
-            fileNameDisplay.classList.remove('selected');
-        }
-    });
-    
-    // Drag and drop functionality
-    const uploadContainer = document.getElementById('upload-container');
-    
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        uploadContainer.addEventListener(eventName, preventDefaults, false);
-    });
-    
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-    
-    ['dragenter', 'dragover'].forEach(eventName => {
-        uploadContainer.addEventListener(eventName, highlight, false);
-    });
-    
-    ['dragleave', 'drop'].forEach(eventName => {
-        uploadContainer.addEventListener(eventName, unhighlight, false);
-    });
-    
-    function highlight() {
-        uploadContainer.classList.add('dragover');
-    }
-    
-    function unhighlight() {
-        uploadContainer.classList.remove('dragover');
-    }
-    
-    uploadContainer.addEventListener('drop', handleDrop, false);
-    
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        
-        if (files && files.length) {
-            fileInput.files = files;
-            
-            // Trigger change event
-            const event = new Event('change');
-            fileInput.dispatchEvent(event);
-        }
-    }
-</script>
+<section class="features-section">
+    <h2>PDF Page Removal Features</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <h3>Precise Selection</h3>
+            <p>Remove specific pages using individual numbers (e.g., 1,3,7) or page ranges (e.g., 5-9)</p>
+        </div>
+        <div class="feature-card">
+            <h3>Complex Patterns</h3>
+            <p>Combine individual pages and ranges for advanced selection (e.g., 1,3,5-9,15-20)</p>
+        </div>
+        <div class="feature-card">
+            <h3>Document Integrity</h3>
+            <p>Maintain document structure, bookmarks, and links in the remaining pages</p>
+        </div>
+        <div class="feature-card">
+            <h3>Fast Processing</h3>
+            <p>Remove pages from even large documents in seconds with our optimized algorithm</p>
+        </div>
+    </div>
+</section>
+
+<section class="faq-section">
+    <h2>PDF Page Removal FAQs</h2>
+    <div class="faq-container">
+        <div class="faq-item">
+            <h3 class="faq-question">Can I remove multiple pages at once?</h3>
+            <div class="faq-answer">
+                <p>Yes, you can remove any number of pages in a single operation. Simply specify all the pages you want to remove separated by commas (e.g., 1,3,5) or as ranges (e.g., 8-12).</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Will removing pages affect document quality?</h3>
+            <div class="faq-answer">
+                <p>No, our tool maintains the original quality of your PDF. The remaining pages will have the same resolution, formatting, and features as the original document.</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Is there a limit to the number of pages I can remove?</h3>
+            <div class="faq-answer">
+                <p>You can remove as many pages as you want, as long as at least one page remains in the document. The total file size is limited to 4.5MB for processing.</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Is my document secure during processing?</h3>
+            <div class="faq-answer">
+                <p>Yes. Your document is processed securely and automatically deleted after processing. We never store or analyze the content of your documents, ensuring complete privacy.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
 <style>
     /* Additional styles specific to the remove page */
@@ -260,4 +263,66 @@
         }
     }
 </style>
+
+<script src="{{ url_for('static', filename='js/faq.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Display selected filename
+        const fileInput = document.getElementById('file');
+        const fileNameDisplay = document.getElementById('file-name');
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileNameDisplay.textContent = this.files[0].name;
+                fileNameDisplay.classList.add('selected');
+            } else {
+                fileNameDisplay.textContent = 'No file selected';
+                fileNameDisplay.classList.remove('selected');
+            }
+        });
+        
+        // Drag and drop functionality
+        const uploadContainer = document.getElementById('upload-container');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadContainer.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            uploadContainer.classList.add('dragover');
+        }
+        
+        function unhighlight() {
+            uploadContainer.classList.remove('dragover');
+        }
+        
+        uploadContainer.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files && files.length) {
+                fileInput.files = files;
+                
+                // Trigger change event
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        }
+    });
+</script>
 {% endblock %}

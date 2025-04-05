@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
+Allow: /redact-pdf
+Allow: /extract-data
+Allow: /edit-pages
+Allow: /blog
 Sitemap: https://www.pdfinverter.com/sitemap.xml
 
 # Disallow processing routes
@@ -13,4 +17,4 @@ Disallow: /extract-batch
 Disallow: /extract-single
 
 # Crawl delay for better server performance
-Crawl-delay: 5 
+Crawl-delay: 3 

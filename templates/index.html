@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Free PDF Tools Online | PDFInverter{% endblock %}
-{% block ogtitle %}Free PDF Tools Online - PDFInverter{% endblock %}
-{% block ogdescription %}Free online PDF tools to convert, edit, and optimize your documents. No registration required.{% endblock %}
-{% block description %}Free online PDF tools including color inverter, redaction, merger, and data extraction. No registration required.{% endblock %}
-{% block twtitle %}Free PDF Tools Online - PDFInverter{% endblock %}
-{% block twdescription %}Transform your PDFs with our free online tools. No registration required.{% endblock %}
+{% block title %}PDF Redaction, Data Extraction & Page Management{% endblock %}
+{% block ogtitle %}PDF Redaction, Data Extraction & Page Management Tools{% endblock %}
+{% block ogdescription %}Free enterprise-grade PDF tools for secure redaction, data extraction to JSON, and page removal. No registration or installation required.{% endblock %}
+{% block description %}Free enterprise-grade PDF tools for secure redaction, data extraction to JSON, and page removal. Protect sensitive information and extract structured data.{% endblock %}
+{% block twtitle %}PDF Redaction, Data Extraction & Page Management Tools{% endblock %}
+{% block twdescription %}Protect sensitive information and extract structured data from PDFs with our free online tools. No registration required.{% endblock %}
 {% block canonical %}{% endblock %}
 
 {% block content %}
 <section class="hero" aria-label="Main banner">
     <div class="hero-content">
         <div class="badge">Free Online Tools</div>
-        <h1>Simple tools for free</h1>
-        <p class="hero-description">Discover our collection of privacy-focused utilities to boost your productivity</p>
+        <h1>Enterprise-grade PDF tools</h1>
+        <p class="hero-description">Securely redact sensitive information, extract structured data, and manage pages with our privacy-focused utilities</p>
         
         <div class="search-container">
             <input type="text" class="search-input" placeholder="Search tools..." aria-label="Search tools">
@@ -28,15 +28,14 @@
 
 <section class="tools-overview">
     <div class="tools-grid">
-        <a href="/convert" class="tool-card">
+        <a href="/redact-pdf" class="tool-card">
             <div class="tool-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 16V4M7 4L3 8M7 4L11 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M17 8V20M17 20L21 16M17 20L13 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 15L15 9M15 15L9 9M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
-            <h3>PDF Color Inverter</h3>
-            <p>Convert dark PDFs to light mode for better readability and reduced ink usage.</p>
+            <h3>PDF Redaction</h3>
+            <p>Securely redact sensitive information from your PDFs with permanent black boxes.</p>
             <div class="tool-link">Try now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg></div>
@@ -48,21 +47,21 @@
                     <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M9 14L11 16L15 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
-            <h3>Data Extractor</h3>
-            <p>Extract text and data from PDF documents with high accuracy.</p>
+            <h3>PDF Data Extraction</h3>
+            <p>Extract structured data and text from PDF documents into JSON format with high accuracy.</p>
             <div class="tool-link">Try now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg></div>
         </a>
         
-        <a href="/redact-pdf" class="tool-card">
+        <a href="/edit-pages" class="tool-card">
             <div class="tool-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 15L15 9M15 15L9 9M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19 7L18 8M19 7L20 8M19 7V4M3 15V16C3 17.6569 4.34315 19 6 19H8M3 15C3 16.6569 4.34315 18 6 18H8M3 15V8C3 6.34315 4.34315 5 6 5H16M8 18V21M8 18H12M16 5H19M16 5V8M12 18H16M12 18V21M16 18V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
-            <h3>PDF Redaction</h3>
-            <p>Securely redact sensitive information from your PDFs with ease.</p>
+            <h3>Remove PDF Pages</h3>
+            <p>Delete specific pages from your PDF documents easily with precision control.</p>
             <div class="tool-link">Try now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg></div>
@@ -81,14 +80,15 @@
             </svg></div>
         </a>
         
-        <a href="/edit-pages" class="tool-card">
+        <a href="/convert" class="tool-card">
             <div class="tool-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 7L18 8M19 7L20 8M19 7V4M3 15V16C3 17.6569 4.34315 19 6 19H8M3 15C3 16.6569 4.34315 18 6 18H8M3 15V8C3 6.34315 4.34315 5 6 5H16M8 18V21M8 18H12M16 5H19M16 5V8M12 18H16M12 18V21M16 18V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 16V4M7 4L3 8M7 4L11 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17 8V20M17 20L21 16M17 20L13 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
-            <h3>Remove Pages</h3>
-            <p>Delete specific pages from your PDF documents easily.</p>
+            <h3>PDF Color Inverter</h3>
+            <p>Convert dark PDFs to light mode for better readability and reduced ink usage.</p>
             <div class="tool-link">Try now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg></div>
@@ -114,24 +114,24 @@
     <h2>Why Choose PDFInverter?</h2>
     <div class="features-grid">
         <div class="feature-card">
-            <div class="feature-icon" aria-hidden="true">👀</div>
-            <h3>Eye Comfort</h3>
-            <p>Reduce eye strain with light-themed documents optimized for reading</p>
+            <div class="feature-icon" aria-hidden="true">🔒</div>
+            <h3>Enterprise Security</h3>
+            <p>Complete privacy with secure redaction technology that permanently removes sensitive data</p>
         </div>
         <div class="feature-card">
-            <div class="feature-icon" aria-hidden="true">🖨️</div>
-            <h3>Save Ink</h3>
-            <p>Dramatically reduce printer ink usage with inverted colors</p>
+            <div class="feature-icon" aria-hidden="true">📊</div>
+            <h3>Structured Data</h3>
+            <p>Advanced algorithms extract structured data from PDFs into machine-readable JSON format</p>
         </div>
         <div class="feature-card">
             <div class="feature-icon" aria-hidden="true">⚡</div>
             <h3>Fast Processing</h3>
-            <p>Convert your PDFs in seconds with our optimized algorithm</p>
+            <p>Process your PDFs in seconds with our optimized algorithms</p>
         </div>
         <div class="feature-card">
-            <div class="feature-icon" aria-hidden="true">🔒</div>
-            <h3>Secure Processing</h3>
-            <p>Your files are processed securely and deleted after conversion</p>
+            <div class="feature-icon" aria-hidden="true">🧩</div>
+            <h3>Complete Control</h3>
+            <p>Precise page management and customization options for all your document needs</p>
         </div>
     </div>
 </section>
@@ -187,7 +187,7 @@
 <section class="cta-section">
     <h2>Ready to Transform Your PDFs?</h2>
     <p>Start using our free PDF tools today - no registration required.</p>
-    <a href="/convert" class="cta-button">Get Started Now</a>
+    <a href="/extract-data" class="cta-button">Get Started Now</a>
 </section>
 {% endblock %}
 

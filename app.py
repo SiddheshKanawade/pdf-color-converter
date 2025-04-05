@@ -505,12 +505,12 @@ def generate_sitemap_data(host_base=None):
     # Define all accessible pages (GET routes that render HTML)
     static_routes = [
         '',                  # Home page
+        '/redact-pdf',       # Redact PDF tool (moved up for SEO priority)
+        '/extract-data',      # Extract data tool (moved up for SEO priority)
+        '/edit-pages',       # Edit pages (moved up for SEO priority)
         '/convert',          # Convert page
-        '/edit-pages',       # Edit pages
-        '/redact-pdf',       # Redact PDF tool
         '/merge-pdf',        # Merge PDF tool
         '/customize-colors', # Customize colors tool
-        '/extract-data',     # Extract data tool
         '/blog'              # Blog index
     ]
     
@@ -529,8 +529,25 @@ def generate_sitemap_data(host_base=None):
     
     # Add static routes with appropriate priorities
     for route in static_routes:
-        priority = '1.0' if route == '' else '0.9' if route == '/convert' else '0.8'
-        changefreq = 'weekly' if route in ['', '/convert', '/blog'] else 'monthly'
+        # Prioritize redaction, data extraction, and page removal
+        if route == '':
+            priority = '1.0'
+            changefreq = 'weekly'
+        elif route == '/redact-pdf':
+            priority = '0.95'
+            changefreq = 'weekly'
+        elif route == '/extract-data':
+            priority = '0.95'
+            changefreq = 'weekly'
+        elif route == '/edit-pages':
+            priority = '0.95'
+            changefreq = 'weekly'
+        elif route == '/convert':
+            priority = '0.9'
+            changefreq = 'weekly'
+        else:
+            priority = '0.8'
+            changefreq = 'monthly'
         
         pages.append({
             'loc': f'{host_base}{route}',
@@ -541,14 +558,20 @@ def generate_sitemap_data(host_base=None):
     
     # Add blog posts
     for route in blog_posts:
+        # Higher priority for blog posts related to redaction, data extraction, or page removal
+        if any(keyword in route for keyword in ['redact', 'extract', 'data', 'remove', 'page', 'security']):
+            priority = '0.8'
+        else:
+            priority = '0.7'
+            
         pages.append({
             'loc': f'{host_base}{route}',
             'lastmod': today,
             'changefreq': 'monthly',
-            'priority': '0.7'
+            'priority': priority
         })
     
-    # Generate sitemap XML
+    # Render sitemap template with pages data
     sitemap_xml = render_template('sitemap.xml', pages=pages)
     
     return pages, sitemap_xml

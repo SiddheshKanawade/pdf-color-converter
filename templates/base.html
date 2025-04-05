@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block description %}Free online tool to convert dark PDFs to light versions. Make your PDFs easier to read and save printer ink.{% endblock %}">
-    <meta name="keywords" content="PDF converter, dark to light PDF, PDF color inverter, eye-friendly PDF, printer-friendly PDF, PDF editor, PDF tools">
+    <meta name="description" content="{% block description %}Free online PDF tools for secure redaction, data extraction, and page management. Advanced PDF processing with privacy protection.{% endblock %}">
+    <meta name="keywords" content="PDF redaction, PDF data extraction, PDF to JSON, remove PDF pages, secure PDF editor, PDF tools, redact PDF, extract data from PDF, delete PDF pages">
     <meta name="author" content="PDFInverter">
-    <meta property="og:title" content="{% block ogtitle %}PDFInverter - Convert Dark PDFs to Light{% endblock %}">
-    <meta property="og:description" content="{% block ogdescription %}Transform dark PDFs into light, eye-friendly documents. Perfect for reading and printing.{% endblock %}">
+    <meta property="og:title" content="{% block ogtitle %}PDFInverter - Secure PDF Redaction & Data Extraction{% endblock %}">
+    <meta property="og:description" content="{% block ogdescription %}Advanced PDF tools for secure redaction, data extraction to JSON, and page management. Privacy-focused processing.{% endblock %}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.url }}">
     <meta property="og:image" content="{{ versioned_url_for('static', filename='images/og-image.jpg', _external=True) }}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{% block twtitle %}PDFInverter - Convert Dark PDFs to Light{% endblock %}">
-    <meta name="twitter:description" content="{% block twdescription %}Transform dark PDFs into light, eye-friendly documents. Perfect for reading and printing.{% endblock %}">
+    <meta name="twitter:title" content="{% block twtitle %}PDFInverter - Secure PDF Redaction & Data Extraction{% endblock %}">
+    <meta name="twitter:description" content="{% block twdescription %}Advanced PDF tools for secure redaction, data extraction to JSON, and page management. Privacy-focused processing.{% endblock %}">
     <meta name="twitter:image" content="{{ versioned_url_for('static', filename='images/twitter-card.jpg', _external=True) }}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ request.url_root }}{% block canonical %}{% endblock %}">
-    <title>{% block title %}PDF Color Inverter{% endblock %} | PDFInverter</title>
+    <title>{% block title %}PDF Redaction & Data Extraction{% endblock %} | PDFInverter</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,7 +30,7 @@
         "@type": "WebApplication",
         "name": "PDFInverter",
         "url": "{{ request.url_root }}",
-        "description": "Convert dark PDFs to light versions for better readability and printing",
+        "description": "Advanced PDF tools for secure redaction, data extraction to JSON, and page management with privacy protection",
         "applicationCategory": "WebApplication",
         "offers": {
             "@type": "Offer",
@@ -43,6 +43,21 @@
             "@type": "Organization",
             "name": "PDFInverter",
             "url": "{{ request.url_root }}"
+        },
+        "featureList": [
+            "Secure PDF redaction",
+            "PDF data extraction to JSON",
+            "Remove specific PDF pages",
+            "PDF color conversion",
+            "PDF merge capabilities"
+        ],
+        "potentialAction": {
+            "@type": "UseAction",
+            "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "{{ request.url_root }}redact-pdf",
+                "description": "Use our secure PDF redaction tool"
+            }
         }
     }
     </script>

@@ -1,16 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Extract Data from PDFs{% endblock %}
-{% block ogtitle %}Extract Data from PDFs - Structured Data Extraction{% endblock %}
-{% block ogdescription %}Extract structured data from PDF files. Process single PDFs or batch process up to 100 files at once with our powerful extraction tool.{% endblock %}
+{% block title %}PDF Data Extraction Tool - Convert PDF to JSON | #1 PDF Parser{% endblock %}
+{% block ogtitle %}PDF to JSON Converter - Extract Structured Data from PDFs{% endblock %}
+{% block ogdescription %}Convert PDF documents to structured JSON data. Our advanced extraction tool parses tables, forms, and text with high accuracy. Perfect for automation and data analysis.{% endblock %}
+{% block description %}The most accurate PDF to JSON extraction tool. Extract structured data from PDF documents with our enterprise-grade parser. Automatically convert forms, tables, and text to machine-readable JSON.{% endblock %}
 {% block canonical %}extract-data{% endblock %}
+
+{% block breadcrumbs %}
+,{
+    "@type": "ListItem",
+    "position": 2,
+    "name": "PDF Data Extraction",
+    "item": "{{ request.url_root }}extract-data"
+}
+{% endblock %}
 
 {% block content %}
 <section class="extract-data-section">
     <div class="container">
         <div class="section-header">
-            <h1>Extract Data from PDFs</h1>
-            <p class="section-description">Upload PDF files to extract structured data. Choose between batch processing for multiple files or single file extraction for detailed results.</p>
+            <h1>Extract Structured Data from PDFs</h1>
+            <p class="section-description">Convert PDF documents to machine-readable JSON format. Our AI-powered extraction engine identifies forms, tables, and text with high accuracy for seamless integration with your systems.</p>
         </div>
         
         <div class="tabs">
@@ -74,366 +84,88 @@
                 </div>
             </div>
         </div>
+        
+        <div class="use-cases">
+            <h2>PDF to JSON Use Cases</h2>
+            <div class="use-cases-grid">
+                <div class="use-case-card">
+                    <div class="use-case-icon">📊</div>
+                    <h3>Data Analysis</h3>
+                    <p>Extract tabular data from financial reports, research papers, and statistical documents for analysis in your preferred tools.</p>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-icon">⚙️</div>
+                    <h3>Process Automation</h3>
+                    <p>Automate workflows by extracting structured data from invoices, purchase orders, and forms for direct integration with your systems.</p>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-icon">📝</div>
+                    <h3>Form Processing</h3>
+                    <p>Convert form fields and their values into structured JSON for database storage and application integration.</p>
+                </div>
+                <div class="use-case-card">
+                    <div class="use-case-icon">🔍</div>
+                    <h3>Content Indexing</h3>
+                    <p>Extract text and metadata from PDFs to build searchable content repositories and knowledge bases.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="technical-details">
+            <h2>Advanced PDF Data Extraction</h2>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <h3>Extraction Capabilities</h3>
+                    <ul>
+                        <li><strong>Tables:</strong> Extracts tabular data with row and column structure preserved</li>
+                        <li><strong>Forms:</strong> Identifies form fields and their corresponding values</li>
+                        <li><strong>Text:</strong> Extracts paragraphs, headings, and lists with formatting hints</li>
+                        <li><strong>Metadata:</strong> Captures document properties and embedded metadata</li>
+                    </ul>
+                </div>
+                <div class="detail-item">
+                    <h3>Output Format</h3>
+                    <ul>
+                        <li>Clean, structured JSON format</li>
+                        <li>Hierarchical data organization</li>
+                        <li>Page-by-page extraction available</li>
+                        <li>Key-value pairing for form fields</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="faq-section">
+            <h2>PDF Data Extraction FAQs</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <h3 class="faq-question">What types of PDFs can be processed?</h3>
+                    <div class="faq-answer">
+                        <p>Our tool can extract data from most PDF types, including scanned documents with OCR, native digital PDFs, and forms. It works best with clearly formatted documents but can handle various layouts and structures.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-question">How accurate is the extraction?</h3>
+                    <div class="faq-answer">
+                        <p>Our AI-powered extraction engine achieves high accuracy for well-formatted documents. For tables and forms, accuracy typically exceeds 95%. For complex layouts or low-quality scans, accuracy may vary but remains industry-leading.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-question">Is my data secure during extraction?</h3>
+                    <div class="faq-answer">
+                        <p>Yes. Your documents are processed securely and automatically deleted after extraction. We never store or use the content of your PDFs for any purpose other than providing the extraction service.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-question">What's the difference between PDF extraction and OCR?</h3>
+                    <div class="faq-answer">
+                        <p>OCR (Optical Character Recognition) converts image-based text to machine-readable text. Our PDF extraction goes further by understanding document structure, identifying tables, forms, and organizing the extracted content into structured JSON data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Tab switching
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabPanes = document.querySelectorAll('.tab-pane');
-        
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const tabId = button.getAttribute('data-tab');
-                
-                // Only allow switching to the single tab
-                if (tabId === 'single') {
-                    // Update active tab button
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    
-                    // Show active tab pane
-                    tabPanes.forEach(pane => pane.classList.remove('active'));
-                    document.getElementById(`${tabId}-tab`).classList.add('active');
-                } else if (tabId === 'batch') {
-                    // Show notification that batch processing is coming soon
-                    alert('Batch processing is coming soon! We\'re working hard to make this feature available.');
-                }
-            });
-        });
-        
-        /*
-        // Batch Processing - Commented out for now
-        const batchDropArea = document.getElementById('batch-drop-area');
-        const batchFileInput = document.getElementById('batch-file-input');
-        const batchFileList = document.getElementById('batch-file-list');
-        const batchExtractButton = document.getElementById('batch-extract-button');
-        const batchClearButton = document.getElementById('batch-clear-files');
-        const batchLoadingIndicator = document.getElementById('batch-loading-indicator');
-        const fileCountDisplay = document.querySelector('.file-count');
-        
-        let batchFiles = [];
-        let totalSize = 0;
-        
-        // Drag and drop for batch
-        batchDropArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            batchDropArea.classList.add('dragover');
-        });
-        
-        batchDropArea.addEventListener('dragleave', () => {
-            batchDropArea.classList.remove('dragover');
-        });
-        
-        batchDropArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            batchDropArea.classList.remove('dragover');
-            handleBatchFiles(e.dataTransfer.files);
-        });
-        
-        batchDropArea.addEventListener('click', () => {
-            batchFileInput.click();
-        });
-        
-        batchFileInput.addEventListener('change', (e) => {
-            handleBatchFiles(e.target.files);
-        });
-        
-        batchClearButton.addEventListener('click', clearBatchFiles);
-        
-        batchExtractButton.addEventListener('click', processBatchFiles);
-        
-        // Field tag click handling
-        document.querySelectorAll('.field-tag').forEach(tag => {
-            tag.addEventListener('click', () => {
-                const fieldInput = document.getElementById('batch-fields');
-                const fieldName = tag.textContent.trim();
-                
-                // Get current value and split into array
-                const currentFields = fieldInput.value.split(',').map(f => f.trim()).filter(f => f);
-                
-                // Add field if not already present
-                if (!currentFields.includes(fieldName)) {
-                    if (currentFields.length > 0) {
-                        fieldInput.value = currentFields.join(', ') + ', ' + fieldName;
-                    } else {
-                        fieldInput.value = fieldName;
-                    }
-                }
-            });
-        });
-        
-        function handleBatchFiles(fileList) {
-            const newFiles = Array.from(fileList).filter(file => file.type === 'application/pdf');
-            
-            if (newFiles.length === 0) {
-                alert('Please select PDF files only');
-                return;
-            }
-            
-            // Check if adding these files would exceed limits
-            const newTotalSize = totalSize + newFiles.reduce((sum, file) => sum + file.size, 0);
-            const newTotalCount = batchFiles.length + newFiles.length;
-            
-            if (newTotalSize > 100 * 1024 * 1024) {
-                alert('Total file size would exceed 100MB limit');
-                return;
-            }
-            
-            if (newTotalCount > 100) {
-                alert('Maximum 100 PDFs allowed');
-                return;
-            }
-            
-            // Add files to our collection
-            batchFiles = [...batchFiles, ...newFiles];
-            totalSize = newTotalSize;
-            
-            // Update UI
-            updateBatchFileList();
-            updateBatchButtons();
-        }
-        
-        function updateBatchFileList() {
-            batchFileList.innerHTML = '';
-            
-            batchFiles.forEach((file, index) => {
-                const listItem = document.createElement('li');
-                listItem.className = 'file-item';
-                listItem.innerHTML = `
-                    <div class="file-info">
-                        <span class="file-name">${file.name}</span>
-                        <span class="file-size">${formatFileSize(file.size)}</span>
-                    </div>
-                    <button class="remove-file" data-index="${index}">×</button>
-                `;
-                batchFileList.appendChild(listItem);
-            });
-            
-            // Update file count display
-            fileCountDisplay.textContent = `${batchFiles.length} files selected (${formatFileSize(totalSize)})`;
-            
-            // Add event listeners to remove buttons
-            document.querySelectorAll('.remove-file').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const index = parseInt(e.target.getAttribute('data-index'));
-                    totalSize -= batchFiles[index].size;
-                    batchFiles.splice(index, 1);
-                    updateBatchFileList();
-                    updateBatchButtons();
-                });
-            });
-        }
-        
-        function updateBatchButtons() {
-            batchExtractButton.disabled = batchFiles.length === 0;
-            batchClearButton.disabled = batchFiles.length === 0;
-        }
-        
-        function clearBatchFiles() {
-            batchFiles = [];
-            totalSize = 0;
-            updateBatchFileList();
-            updateBatchButtons();
-        }
-        
-        async function processBatchFiles() {
-            if (batchFiles.length === 0) {
-                alert('Please add at least one PDF file to process.');
-                return;
-            }
-            
-            // Show loading indicator
-            batchLoadingIndicator.classList.remove('hidden');
-            
-            // Create FormData
-            const formData = new FormData();
-            batchFiles.forEach(file => {
-                formData.append('files[]', file);
-            });
-            
-            // Add extraction fields if specified
-            const extractionFields = document.getElementById('batch-fields').value.trim();
-            if (extractionFields) {
-                formData.append('fields', extractionFields);
-            }
-            
-            try {
-                const response = await fetch('/extract-batch', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-                
-                // Hide loading indicator
-                batchLoadingIndicator.classList.add('hidden');
-                
-                if (data.success) {
-                    // Download the CSV file
-                    window.location.href = `/download/${data.csv_filename}`;
-                    
-                    // Clear the file list
-                    clearBatchFiles();
-                } else {
-                    alert(data.error || 'Processing failed');
-                }
-            } catch (error) {
-                console.error('Error processing files:', error);
-                batchLoadingIndicator.classList.add('hidden');
-                alert('Error processing files');
-            }
-        }
-        */
-        
-        // Single PDF Processing
-        const singleDropArea = document.getElementById('single-drop-area');
-        const singleFileInput = document.getElementById('single-file-input');
-        const singleFileInfo = document.querySelector('.single-file-info');
-        const singleFileName = document.getElementById('single-file-name');
-        const singleFileSize = document.getElementById('single-file-size');
-        const singleExtractButton = document.getElementById('single-extract-button');
-        const singleClearButton = document.getElementById('single-clear-file');
-        const singleLoadingIndicator = document.getElementById('single-loading-indicator');
-        const resultContainer = document.getElementById('result-container');
-        const jsonResult = document.getElementById('json-result');
-        const downloadJsonButton = document.getElementById('download-json');
-        
-        let singleFile = null;
-        let extractedData = null;
-        
-        // Drag and drop for single
-        singleDropArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            singleDropArea.classList.add('dragover');
-        });
-        
-        singleDropArea.addEventListener('dragleave', () => {
-            singleDropArea.classList.remove('dragover');
-        });
-        
-        singleDropArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            singleDropArea.classList.remove('dragover');
-            handleSingleFile(e.dataTransfer.files[0]);
-        });
-        
-        singleDropArea.addEventListener('click', () => {
-            singleFileInput.click();
-        });
-        
-        singleFileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleSingleFile(e.target.files[0]);
-            }
-        });
-        
-        singleClearButton.addEventListener('click', clearSingleFile);
-        
-        singleExtractButton.addEventListener('click', processSingleFile);
-        
-        downloadJsonButton.addEventListener('click', downloadJson);
-        
-        function handleSingleFile(file) {
-            if (!file) return;
-            
-            if (file.type !== 'application/pdf') {
-                alert('Please select a PDF file');
-                return;
-            }
-            
-            if (file.size > 45 * 1024 * 1024) {
-                alert('File size exceeds 45MB limit');
-                return;
-            }
-            
-            singleFile = file;
-            
-            // Update UI
-            singleFileName.textContent = file.name;
-            singleFileSize.textContent = formatFileSize(file.size);
-            singleFileInfo.classList.remove('hidden');
-            singleDropArea.classList.add('hidden');
-            resultContainer.classList.add('hidden');
-        }
-        
-        function clearSingleFile() {
-            singleFile = null;
-            extractedData = null;
-            singleFileInfo.classList.add('hidden');
-            singleDropArea.classList.remove('hidden');
-            resultContainer.classList.add('hidden');
-            singleFileInput.value = '';
-        }
-        
-        async function processSingleFile() {
-            if (!singleFile) {
-                alert('Please select a PDF file to process.');
-                return;
-            }
-            
-            // Show loading indicator
-            singleLoadingIndicator.classList.remove('hidden');
-            
-            // Create FormData
-            const formData = new FormData();
-            formData.append('file', singleFile);
-            
-            try {
-                const response = await fetch('/extract-single', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-                
-                // Hide loading indicator
-                singleLoadingIndicator.classList.add('hidden');
-                
-                if (data.success) {
-                    // Display the JSON result
-                    extractedData = data.data;
-                    jsonResult.textContent = JSON.stringify(extractedData, null, 2);
-                    resultContainer.classList.remove('hidden');
-                } else {
-                    alert(data.error || 'Processing failed');
-                }
-            } catch (error) {
-                console.error('Error processing file:', error);
-                singleLoadingIndicator.classList.add('hidden');
-                alert('Error processing file');
-            }
-        }
-        
-        function downloadJson() {
-            if (!extractedData) return;
-            
-            const dataStr = JSON.stringify(extractedData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `extracted_data_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-        
-        // Utility function
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-    });
-</script>
 
 <style>
     .extract-data-section {
@@ -968,5 +700,552 @@
         margin: 0 auto;
         line-height: 1.6;
     }
+    
+    /* Use Cases Section Styling */
+    .use-cases {
+        padding: 3rem 0;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        margin: 2rem 0;
+    }
+    
+    .use-cases h2 {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: var(--primary-color);
+        position: relative;
+    }
+    
+    .use-cases h2:after {
+        content: "";
+        display: block;
+        width: 60px;
+        height: 4px;
+        background-color: var(--accent-color);
+        margin: 0.8rem auto 0;
+        border-radius: 2px;
+    }
+    
+    .use-cases-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    
+    .use-case-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        border: 1px solid var(--border-color);
+    }
+    
+    .use-case-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        border-color: var(--accent-color);
+    }
+    
+    .use-case-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        background-color: rgba(74, 108, 247, 0.1);
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: var(--accent-color);
+    }
+    
+    .use-case-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--primary-color);
+    }
+    
+    .use-case-card p {
+        font-size: 0.95rem;
+        color: var(--secondary-color);
+        line-height: 1.5;
+    }
+    
+    @media (max-width: 768px) {
+        .use-cases {
+            padding: 2rem 1rem;
+        }
+        
+        .use-cases h2 {
+            font-size: 1.75rem;
+        }
+        
+        .use-cases-grid {
+            grid-template-columns: 1fr;
+            max-width: 450px;
+        }
+    }
+    
+    /* Technical Details Section Styling */
+    .technical-details {
+        padding: 3rem 0;
+        background-color: white;
+        border-radius: 12px;
+        margin: 2rem 0;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+    
+    .technical-details h2 {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: var(--primary-color);
+        position: relative;
+    }
+    
+    .technical-details h2:after {
+        content: "";
+        display: block;
+        width: 60px;
+        height: 4px;
+        background-color: var(--accent-color);
+        margin: 0.8rem auto 0;
+        border-radius: 2px;
+    }
+    
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+    
+    .detail-item {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        border-left: 4px solid var(--accent-color);
+        transition: all 0.3s ease;
+    }
+    
+    .detail-item:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+    }
+    
+    .detail-item h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--accent-color);
+    }
+    
+    .detail-item ul {
+        padding-left: 1.5rem;
+        margin: 0;
+    }
+    
+    .detail-item li {
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+        color: var(--secondary-color);
+    }
+    
+    .detail-item li strong {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+        .technical-details {
+            padding: 2rem 1rem;
+        }
+        
+        .technical-details h2 {
+            font-size: 1.75rem;
+        }
+        
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .detail-item {
+            padding: 1.25rem;
+        }
+    }
 </style>
+
+<script src="{{ url_for('static', filename='js/faq.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Only allow switching to the single tab
+                if (tabId === 'single') {
+                    // Update active tab button
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Show active tab pane
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                } else if (tabId === 'batch') {
+                    // Show notification that batch processing is coming soon
+                    alert('Batch processing is coming soon! We\'re working hard to make this feature available.');
+                }
+            });
+        });
+        
+        /*
+        // Batch Processing - Commented out for now
+        const batchDropArea = document.getElementById('batch-drop-area');
+        const batchFileInput = document.getElementById('batch-file-input');
+        const batchFileList = document.getElementById('batch-file-list');
+        const batchExtractButton = document.getElementById('batch-extract-button');
+        const batchClearButton = document.getElementById('batch-clear-files');
+        const batchLoadingIndicator = document.getElementById('batch-loading-indicator');
+        const fileCountDisplay = document.querySelector('.file-count');
+        
+        let batchFiles = [];
+        let totalSize = 0;
+        
+        // Drag and drop for batch
+        batchDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            batchDropArea.classList.add('dragover');
+        });
+        
+        batchDropArea.addEventListener('dragleave', () => {
+            batchDropArea.classList.remove('dragover');
+        });
+        
+        batchDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            batchDropArea.classList.remove('dragover');
+            handleBatchFiles(e.dataTransfer.files);
+        });
+        
+        batchDropArea.addEventListener('click', () => {
+            batchFileInput.click();
+        });
+        
+        batchFileInput.addEventListener('change', (e) => {
+            handleBatchFiles(e.target.files);
+        });
+        
+        batchClearButton.addEventListener('click', clearBatchFiles);
+        
+        batchExtractButton.addEventListener('click', processBatchFiles);
+        
+        // Field tag click handling
+        document.querySelectorAll('.field-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                const fieldInput = document.getElementById('batch-fields');
+                const fieldName = tag.textContent.trim();
+                
+                // Get current value and split into array
+                const currentFields = fieldInput.value.split(',').map(f => f.trim()).filter(f => f);
+                
+                // Add field if not already present
+                if (!currentFields.includes(fieldName)) {
+                    if (currentFields.length > 0) {
+                        fieldInput.value = currentFields.join(', ') + ', ' + fieldName;
+                    } else {
+                        fieldInput.value = fieldName;
+                    }
+                }
+            });
+        });
+        
+        function handleBatchFiles(fileList) {
+            const newFiles = Array.from(fileList).filter(file => file.type === 'application/pdf');
+            
+            if (newFiles.length === 0) {
+                alert('Please select PDF files only');
+                return;
+            }
+            
+            // Check if adding these files would exceed limits
+            const newTotalSize = totalSize + newFiles.reduce((sum, file) => sum + file.size, 0);
+            const newTotalCount = batchFiles.length + newFiles.length;
+            
+            if (newTotalSize > 100 * 1024 * 1024) {
+                alert('Total file size would exceed 100MB limit');
+                return;
+            }
+            
+            if (newTotalCount > 100) {
+                alert('Maximum 100 PDFs allowed');
+                return;
+            }
+            
+            // Add files to our collection
+            batchFiles = [...batchFiles, ...newFiles];
+            totalSize = newTotalSize;
+            
+            // Update UI
+            updateBatchFileList();
+            updateBatchButtons();
+        }
+        
+        function updateBatchFileList() {
+            batchFileList.innerHTML = '';
+            
+            batchFiles.forEach((file, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'file-item';
+                listItem.innerHTML = `
+                    <div class="file-info">
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">${formatFileSize(file.size)}</span>
+                    </div>
+                    <button class="remove-file" data-index="${index}">×</button>
+                `;
+                batchFileList.appendChild(listItem);
+            });
+            
+            // Update file count display
+            fileCountDisplay.textContent = `${batchFiles.length} files selected (${formatFileSize(totalSize)})`;
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-file').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    totalSize -= batchFiles[index].size;
+                    batchFiles.splice(index, 1);
+                    updateBatchFileList();
+                    updateBatchButtons();
+                });
+            });
+        }
+        
+        function updateBatchButtons() {
+            batchExtractButton.disabled = batchFiles.length === 0;
+            batchClearButton.disabled = batchFiles.length === 0;
+        }
+        
+        function clearBatchFiles() {
+            batchFiles = [];
+            totalSize = 0;
+            updateBatchFileList();
+            updateBatchButtons();
+        }
+        
+        async function processBatchFiles() {
+            if (batchFiles.length === 0) {
+                alert('Please add at least one PDF file to process.');
+                return;
+            }
+            
+            // Show loading indicator
+            batchLoadingIndicator.classList.remove('hidden');
+            
+            // Create FormData
+            const formData = new FormData();
+            batchFiles.forEach(file => {
+                formData.append('files[]', file);
+            });
+            
+            // Add extraction fields if specified
+            const extractionFields = document.getElementById('batch-fields').value.trim();
+            if (extractionFields) {
+                formData.append('fields', extractionFields);
+            }
+            
+            try {
+                const response = await fetch('/extract-batch', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Hide loading indicator
+                batchLoadingIndicator.classList.add('hidden');
+                
+                if (data.success) {
+                    // Download the CSV file
+                    window.location.href = `/download/${data.csv_filename}`;
+                    
+                    // Clear the file list
+                    clearBatchFiles();
+                } else {
+                    alert(data.error || 'Processing failed');
+                }
+            } catch (error) {
+                console.error('Error processing files:', error);
+                batchLoadingIndicator.classList.add('hidden');
+                alert('Error processing files');
+            }
+        }
+        */
+        
+        // Single PDF Processing
+        const singleDropArea = document.getElementById('single-drop-area');
+        const singleFileInput = document.getElementById('single-file-input');
+        const singleFileInfo = document.querySelector('.single-file-info');
+        const singleFileName = document.getElementById('single-file-name');
+        const singleFileSize = document.getElementById('single-file-size');
+        const singleExtractButton = document.getElementById('single-extract-button');
+        const singleClearButton = document.getElementById('single-clear-file');
+        const singleLoadingIndicator = document.getElementById('single-loading-indicator');
+        const resultContainer = document.getElementById('result-container');
+        const jsonResult = document.getElementById('json-result');
+        const downloadJsonButton = document.getElementById('download-json');
+        
+        let singleFile = null;
+        let extractedData = null;
+        
+        // Drag and drop for single
+        singleDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            singleDropArea.classList.add('dragover');
+        });
+        
+        singleDropArea.addEventListener('dragleave', () => {
+            singleDropArea.classList.remove('dragover');
+        });
+        
+        singleDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            singleDropArea.classList.remove('dragover');
+            handleSingleFile(e.dataTransfer.files[0]);
+        });
+        
+        singleDropArea.addEventListener('click', () => {
+            singleFileInput.click();
+        });
+        
+        singleFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleSingleFile(e.target.files[0]);
+            }
+        });
+        
+        singleClearButton.addEventListener('click', clearSingleFile);
+        
+        singleExtractButton.addEventListener('click', processSingleFile);
+        
+        downloadJsonButton.addEventListener('click', downloadJson);
+        
+        function handleSingleFile(file) {
+            if (!file) return;
+            
+            if (file.type !== 'application/pdf') {
+                alert('Please select a PDF file');
+                return;
+            }
+            
+            if (file.size > 45 * 1024 * 1024) {
+                alert('File size exceeds 45MB limit');
+                return;
+            }
+            
+            singleFile = file;
+            
+            // Update UI
+            singleFileName.textContent = file.name;
+            singleFileSize.textContent = formatFileSize(file.size);
+            singleFileInfo.classList.remove('hidden');
+            singleDropArea.classList.add('hidden');
+            resultContainer.classList.add('hidden');
+        }
+        
+        function clearSingleFile() {
+            singleFile = null;
+            extractedData = null;
+            singleFileInfo.classList.add('hidden');
+            singleDropArea.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            singleFileInput.value = '';
+        }
+        
+        async function processSingleFile() {
+            if (!singleFile) {
+                alert('Please select a PDF file to process.');
+                return;
+            }
+            
+            // Show loading indicator
+            singleLoadingIndicator.classList.remove('hidden');
+            
+            // Create FormData
+            const formData = new FormData();
+            formData.append('file', singleFile);
+            
+            try {
+                const response = await fetch('/extract-single', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Hide loading indicator
+                singleLoadingIndicator.classList.add('hidden');
+                
+                if (data.success) {
+                    // Display the JSON result
+                    extractedData = data.data;
+                    jsonResult.textContent = JSON.stringify(extractedData, null, 2);
+                    resultContainer.classList.remove('hidden');
+                } else {
+                    alert(data.error || 'Processing failed');
+                }
+            } catch (error) {
+                console.error('Error processing file:', error);
+                singleLoadingIndicator.classList.add('hidden');
+                alert('Error processing file');
+            }
+        }
+        
+        function downloadJson() {
+            if (!extractedData) return;
+            
+            const dataStr = JSON.stringify(extractedData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `extracted_data_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Utility function
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+</script>
 {% endblock %} 
